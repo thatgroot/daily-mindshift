@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ModeToggle } from './ModeToggle';
 import { Menu } from 'lucide-react';
 import { Button } from './ui/button';
+import Sidebar from './Sidebar';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -11,13 +12,22 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const isMobile = useIsMobile();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+  const closeSidebar = () => setSidebarOpen(false);
   
   return (
     <div className="min-h-screen flex flex-col bg-background animate-fade-in">
       <header className="border-b supports-backdrop-blur:bg-background/60 sticky top-0 z-40 bg-background/95 backdrop-blur">
         <div className="container flex h-16 items-center">
           <div className="flex items-center space-x-3">
-            <Button variant="ghost" size="icon" className="rounded-full lg:hidden">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="rounded-full"
+              onClick={toggleSidebar}
+            >
               <Menu className="h-5 w-5" />
             </Button>
             <span className="font-bold text-xl tracking-tight">Daily Routines</span>
@@ -28,6 +38,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         </div>
       </header>
+      
+      <Sidebar isOpen={sidebarOpen} onClose={closeSidebar} />
       
       <main className="flex-1">
         <div className="container py-6 md:py-8 max-w-6xl">
