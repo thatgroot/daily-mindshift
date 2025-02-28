@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import Layout from '@/components/Layout';
 import { HabitProvider } from '@/contexts/HabitContext';
 import { useHabits } from '@/contexts/HabitContext';
