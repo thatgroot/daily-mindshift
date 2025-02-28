@@ -9,7 +9,7 @@ import HabitCard from './HabitCard';
 import ProgressRing from './ProgressRing';
 import HabitForm from './HabitForm';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, Flame, Plus, TrendingUp, Award, Line, LayoutGrid } from 'lucide-react';
+import { Calendar, Flame, Plus, TrendingUp, Award, LayoutGrid } from 'lucide-react';
 import { Habit } from '@/types/habit';
 import StatsCard from './StatsCard';
 import AnimatedCounter from './AnimatedCounter';

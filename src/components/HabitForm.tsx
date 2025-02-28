@@ -108,13 +108,13 @@ const HabitForm: React.FC<HabitFormProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] rounded-2xl">
         <form onSubmit={handleSubmit}>
-          <DialogHeader>
-            <DialogTitle>{habit ? 'Edit Habit' : 'Create New Habit'}</DialogTitle>
+          <DialogHeader className="pb-4 border-b">
+            <DialogTitle className="text-xl">{habit ? 'Edit Habit' : 'Create New Habit'}</DialogTitle>
           </DialogHeader>
           
-          <div className="grid gap-4 py-4">
+          <div className="grid gap-4 py-5">
             <div className="grid gap-2">
               <Label htmlFor="name">Habit Name</Label>
               <Input
@@ -123,6 +123,7 @@ const HabitForm: React.FC<HabitFormProps> = ({
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g., Morning Meditation"
                 autoFocus
+                className="rounded-lg"
               />
             </div>
             
@@ -134,6 +135,7 @@ const HabitForm: React.FC<HabitFormProps> = ({
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Describe your habit..."
                 rows={2}
+                className="rounded-lg"
               />
             </div>
             
@@ -158,13 +160,14 @@ const HabitForm: React.FC<HabitFormProps> = ({
             {frequency === 'weekly' && (
               <div className="grid gap-2">
                 <Label>Days of Week</Label>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-4 gap-3">
                   {DAYS_OF_WEEK.map((day) => (
                     <div key={day} className="flex items-center space-x-2">
                       <Checkbox
                         id={day}
                         checked={weekDays.includes(day)}
                         onCheckedChange={() => handleWeekDayToggle(day)}
+                        className="rounded-md"
                       />
                       <Label htmlFor={day} className="cursor-pointer capitalize">
                         {day.slice(0, 3)}
@@ -178,7 +181,7 @@ const HabitForm: React.FC<HabitFormProps> = ({
             <div className="grid gap-2">
               <Label htmlFor="category">Category</Label>
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger id="category">
+                <SelectTrigger id="category" className="rounded-lg">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -198,17 +201,18 @@ const HabitForm: React.FC<HabitFormProps> = ({
                 type="time"
                 value={reminder}
                 onChange={(e) => setReminder(e.target.value)}
+                className="rounded-lg"
               />
             </div>
             
             <div className="grid gap-2">
               <Label>Color</Label>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-3">
                 {COLORS.map((c) => (
                   <div
                     key={c.value}
                     className={`w-8 h-8 rounded-full cursor-pointer transition-all ${c.value} ${
-                      color === c.value ? 'ring-2 ring-accent' : ''
+                      color === c.value ? 'ring-2 ring-accent ring-offset-2' : ''
                     }`}
                     onClick={() => setColor(c.value)}
                   />
@@ -217,11 +221,11 @@ const HabitForm: React.FC<HabitFormProps> = ({
             </div>
           </div>
           
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <DialogFooter className="pt-4 border-t flex justify-end gap-2">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="rounded-full">
               Cancel
             </Button>
-            <Button type="submit">
+            <Button type="submit" className="rounded-full">
               {habit ? 'Update Habit' : 'Create Habit'}
             </Button>
           </DialogFooter>

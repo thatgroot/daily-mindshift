@@ -14,16 +14,16 @@
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 10%;
 
-    --primary: 240 8% 10%;
+    --primary: 224 64% 33%;
     --primary-foreground: 0 0% 98%;
 
-    --secondary: 240 4% 94%;
+    --secondary: 220 14% 96%;
     --secondary-foreground: 240 8% 20%;
 
     --muted: 240 5% 96%;
     --muted-foreground: 240 4% 46%;
 
-    --accent: 262 83% 58%;
+    --accent: 265 89% 62%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
@@ -31,9 +31,9 @@
 
     --border: 240 6% 90%;
     --input: 240 6% 90%;
-    --ring: 240 10% 25%;
+    --ring: 224 64% 33%;
 
-    --radius: 0.6rem;
+    --radius: 1.5rem;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5% 26%;
@@ -49,22 +49,22 @@
     --background: 240 6% 6%;
     --foreground: 0 0% 95%;
 
-    --card: 240 6% 8%;
+    --card: 240 6% 10%;
     --card-foreground: 0 0% 95%;
 
     --popover: 240 6% 8%;
     --popover-foreground: 0 0% 95%;
 
-    --primary: 0 0% 95%;
-    --primary-foreground: 240 6% 10%;
+    --primary: 221 83% 53%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 240 4% 16%;
+    --secondary: 240 4% 12%;
     --secondary-foreground: 0 0% 95%;
 
     --muted: 240 4% 16%;
     --muted-foreground: 240 5% 65%;
 
-    --accent: 262 83% 58%;
+    --accent: 265 89% 62%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
@@ -72,7 +72,7 @@
 
     --border: 240 4% 20%;
     --input: 240 4% 20%;
-    --ring: 240 5% 70%;
+    --ring: 221 83% 53%;
 
     --sidebar-background: 240 6% 8%;
     --sidebar-foreground: 240 5% 96%;
@@ -137,4 +137,37 @@
   animation-duration: 350ms;
   animation-timing-function: ease-out;
   animation-fill-mode: both;
+}
+
+/* Google Material Design-inspired transitions */
+.material-transition {
+  @apply transition-all duration-300 ease-in-out;
+}
+
+.button-ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.button-ripple::after {
+  content: "";
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+  background-repeat: no-repeat;
+  background-position: 50%;
+  transform: scale(10, 10);
+  opacity: 0;
+  transition: transform .5s, opacity 1s;
+}
+
+.button-ripple:active::after {
+  transform: scale(0, 0);
+  opacity: .3;
+  transition: 0s;
 }

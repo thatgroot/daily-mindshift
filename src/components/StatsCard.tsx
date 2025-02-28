@@ -27,12 +27,15 @@ const StatsCard: React.FC<StatsCardProps> = ({
   className,
 }) => {
   return (
-    <Card className={cn("overflow-hidden transition-all duration-300 hover:shadow-md", className)}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+    <Card className={cn(
+      "overflow-hidden transition-all duration-300 hover:shadow-md rounded-xl border-none shadow-sm", 
+      className
+    )}>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 bg-secondary/30 px-4 pt-3 pb-3">
         <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        {icon && <div className="text-muted-foreground">{icon}</div>}
+        {icon && <div className="text-muted-foreground bg-background/70 p-1.5 rounded-full">{icon}</div>}
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4">
         <div className="flex items-center gap-4">
           {ringValue !== undefined && ringMax !== undefined ? (
             <ProgressRing 
