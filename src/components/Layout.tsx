@@ -39,7 +39,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         </div>
       </header>
       
-      <Sidebar isOpen={sidebarOpen} onClose={closeSidebar} />
+      <Sidebar open={sidebarOpen} onOpenChange={closeSidebar} />
       
       <main className="flex-1">
         <div className="container py-6 md:py-8 max-w-6xl">

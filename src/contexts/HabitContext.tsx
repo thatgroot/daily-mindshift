@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Habit, HabitCompletion } from '@/types/habit';
 import { toast } from '@/hooks/use-toast';
@@ -29,7 +28,6 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
 
-  // Fetch habits from Supabase when component mounts or user changes
   useEffect(() => {
     const fetchHabits = async () => {
       if (!user) {
@@ -41,7 +39,6 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       try {
         setLoading(true);
         
-        // Fetch habits
         const { data: habitsData, error: habitsError } = await supabase
           .from('habits')
           .select('*')
@@ -49,7 +46,6 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
         if (habitsError) throw habitsError;
 
-        // Fetch completions for all habits
         const { data: completionsData, error: completionsError } = await supabase
           .from('habit_completions')
           .select('*')
@@ -57,11 +53,9 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
         if (completionsError) throw completionsError;
 
-        // Format habits with completions
         const formattedHabits = habitsData.map(habit => {
           const habitCompletions = completionsData.filter(c => c.habit_id === habit.id);
           
-          // Convert completions array to record with date as key
           const completionsRecord: Record<string, HabitCompletion> = {};
           habitCompletions.forEach(completion => {
             const dateStr = format(new Date(completion.date), 'yyyy-MM-dd');
@@ -78,8 +72,8 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             description: habit.description || undefined,
             icon: habit.icon || undefined,
             color: habit.color || undefined,
-            frequency: habit.frequency,
-            weekDays: habit.week_days || undefined,
+            frequency: habit.frequency as Frequency,
+            weekDays: habit.week_days as WeekDay[] || undefined,
             monthDays: habit.month_days || undefined,
             customDays: habit.custom_days || undefined,
             createdAt: habit.created_at,
@@ -148,8 +142,8 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         description: data.description || undefined,
         icon: data.icon || undefined,
         color: data.color || undefined,
-        frequency: data.frequency,
-        weekDays: data.week_days || undefined,
+        frequency: data.frequency as Frequency,
+        weekDays: data.week_days as WeekDay[] || undefined,
         monthDays: data.month_days || undefined,
         customDays: data.custom_days || undefined,
         createdAt: data.created_at,
@@ -269,7 +263,6 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     
     try {
       if (isCompleted) {
-        // Delete the completion
         const { error } = await supabase
           .from('habit_completions')
           .delete()
@@ -278,7 +271,6 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
         if (error) throw error;
         
-        // Update local state
         const newHabits = [...habits];
         const habitIndex = newHabits.findIndex(h => h.id === id);
         
@@ -295,7 +287,6 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           setHabits(newHabits);
         }
       } else {
-        // Insert new completion
         const { error } = await supabase
           .from('habit_completions')
           .insert([{
@@ -307,8 +298,6 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
         if (error) throw error;
         
-        // The updated habit stats will come from the database via the trigger
-        // For now, just update the completion in the UI
         const newHabits = [...habits];
         const habitIndex = newHabits.findIndex(h => h.id === id);
         
@@ -378,7 +367,6 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         const dayOfMonth = today.getDate();
         return habit.monthDays?.includes(dayOfMonth) || false;
       case 'custom':
-        // For demo purposes, always return true for custom
         return true;
       default:
         return false;
