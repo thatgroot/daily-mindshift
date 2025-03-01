@@ -10,6 +10,7 @@ import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import NewHabit from "./pages/NewHabit";
 import NotFound from "./pages/NotFound";
+import Docs from "./pages/Docs";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/new-habit" element={<NewHabit />} />
+          <Route path="/docs" element={<Docs />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
