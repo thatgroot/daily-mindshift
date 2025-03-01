@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Habit, Frequency, WeekDay } from '@/types/habit';
 import { useHabits } from '@/contexts/HabitContext';
@@ -63,8 +64,9 @@ const HabitForm: React.FC<HabitFormProps> = ({
   const [category, setCategory] = useState(habit?.category || 'Personal');
   const [reminder, setReminder] = useState(habit?.reminder || '');
   const [color, setColor] = useState(habit?.color || COLORS[0].value);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!name.trim()) {
@@ -76,26 +78,49 @@ const HabitForm: React.FC<HabitFormProps> = ({
       return;
     }
     
-    const habitData = {
-      name,
-      description,
-      frequency,
-      weekDays: frequency === 'weekly' ? weekDays : undefined,
-      category,
-      reminder: reminder || undefined,
-      color,
-    };
-    
-    if (habit) {
-      updateHabit({
-        ...habit,
-        ...habitData,
+    try {
+      setIsSubmitting(true);
+      
+      const habitData = {
+        name,
+        description,
+        frequency,
+        weekDays: frequency === 'weekly' ? weekDays : undefined,
+        category,
+        reminder: reminder || undefined,
+        color,
+      };
+      
+      console.log('Submitting habit data:', habitData);
+      
+      if (habit) {
+        await updateHabit({
+          ...habit,
+          ...habitData,
+        });
+        toast({
+          title: "Success",
+          description: "Habit updated successfully",
+        });
+      } else {
+        await addHabit(habitData);
+        toast({
+          title: "Success",
+          description: "Habit created successfully",
+        });
+      }
+      
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Error submitting habit:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save habit. Please try again.",
+        variant: "destructive",
       });
-    } else {
-      addHabit(habitData);
+    } finally {
+      setIsSubmitting(false);
     }
-    
-    onOpenChange(false);
   };
   
   const handleWeekDayToggle = (day: WeekDay) => {
@@ -225,8 +250,12 @@ const HabitForm: React.FC<HabitFormProps> = ({
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="rounded-full">
               Cancel
             </Button>
-            <Button type="submit" className="rounded-full">
-              {habit ? 'Update Habit' : 'Create Habit'}
+            <Button type="submit" className="rounded-full" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {habit ? 'Updating...' : 'Creating...'}</>
+              ) : (
+                habit ? 'Update Habit' : 'Create Habit'
+              )}
             </Button>
           </DialogFooter>
         </form>

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Habit, HabitCompletion } from '@/types/habit';
+import { Habit, HabitCompletion, Frequency, WeekDay } from '@/types/habit';
 import { toast } from '@/hooks/use-toast';
 import { format, isToday, parseISO, startOfDay } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
@@ -117,6 +117,8 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
 
     try {
+      console.log('Adding new habit:', newHabit);
+      
       const { week_days, month_days, custom_days, ...rest } = newHabit as any;
       
       const { data, error } = await supabase
@@ -134,7 +136,16 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error when adding habit:', error);
+        throw error;
+      }
+
+      if (!data) {
+        throw new Error('No data returned from Supabase when adding habit');
+      }
+
+      console.log('Habit added successfully:', data);
 
       const habit: Habit = {
         id: data.id,
@@ -163,6 +174,8 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         title: 'Habit created',
         description: `${habit.name} has been added to your habits.`,
       });
+      
+      return habit;
     } catch (err) {
       console.error('Error adding habit:', err);
       toast({
@@ -170,6 +183,7 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         description: 'Failed to add habit. Please try again.',
         variant: 'destructive',
       });
+      throw err;
     }
   };
 
