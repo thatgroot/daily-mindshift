@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Habit, HabitCompletion, Frequency, WeekDay } from '@/types/habit';
 import { toast } from '@/hooks/use-toast';
@@ -119,20 +120,29 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     try {
       console.log('Adding new habit:', newHabit);
       
-      const { week_days, month_days, custom_days, ...rest } = newHabit as any;
+      // Create a payload object with snake_case keys to match database schema
+      const habitPayload = {
+        user_id: user.id,
+        name: newHabit.name,
+        description: newHabit.description || null,
+        icon: newHabit.icon || null,
+        color: newHabit.color || null,
+        frequency: newHabit.frequency,
+        week_days: newHabit.weekDays || null,
+        month_days: newHabit.monthDays || null,
+        custom_days: newHabit.customDays || null,
+        reminder: newHabit.reminder || null,
+        category: newHabit.category || 'Personal',
+        streak: 0,
+        best_streak: 0,
+        total_completions: 0
+      };
+      
+      console.log('Submitting habit payload:', habitPayload);
       
       const { data, error } = await supabase
         .from('habits')
-        .insert([{
-          user_id: user.id,
-          ...rest,
-          week_days: newHabit.weekDays,
-          month_days: newHabit.monthDays,
-          custom_days: newHabit.customDays,
-          streak: 0,
-          best_streak: 0,
-          total_completions: 0
-        }])
+        .insert([habitPayload])
         .select()
         .single();
 
