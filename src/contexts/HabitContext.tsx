@@ -3,113 +3,8 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Habit, HabitCompletion } from '@/types/habit';
 import { toast } from '@/hooks/use-toast';
 import { format, isToday, parseISO, startOfDay } from 'date-fns';
-
-// Sample initial habits data
-const initialHabits: Habit[] = [
-  {
-    id: '1',
-    name: 'Morning Meditation',
-    description: 'Meditate for 10 minutes in the morning',
-    icon: 'brain',
-    color: 'bg-purple-200 dark:bg-purple-900',
-    frequency: 'daily',
-    createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
-    updatedAt: new Date().toISOString(),
-    completions: {
-      [format(new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd')]: {
-        date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-        completed: true,
-      },
-      [format(new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd')]: {
-        date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-        completed: true,
-      },
-    },
-    streak: 2,
-    bestStreak: 7,
-    totalCompletions: 12,
-    reminder: '08:00',
-    category: 'Wellness',
-  },
-  {
-    id: '2',
-    name: 'Read for 30 minutes',
-    description: 'Read a non-fiction book',
-    icon: 'book-open',
-    color: 'bg-blue-200 dark:bg-blue-900',
-    frequency: 'daily',
-    createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
-    updatedAt: new Date().toISOString(),
-    completions: {
-      [format(new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd')]: {
-        date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-        completed: true,
-      },
-      [format(new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd')]: {
-        date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-        completed: true,
-      },
-    },
-    streak: 0,
-    bestStreak: 5,
-    totalCompletions: 15,
-    category: 'Learning',
-  },
-  {
-    id: '3',
-    name: 'Exercise',
-    description: 'Go for a run or workout for 30 minutes',
-    icon: 'dumbbell',
-    color: 'bg-green-200 dark:bg-green-900',
-    frequency: 'weekly',
-    weekDays: ['monday', 'wednesday', 'friday'],
-    createdAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(),
-    updatedAt: new Date().toISOString(),
-    completions: {
-      [format(new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd')]: {
-        date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-        completed: true,
-      },
-      [format(new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd')]: {
-        date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-        completed: true,
-      },
-    },
-    streak: 2,
-    bestStreak: 8,
-    totalCompletions: 25,
-    reminder: '17:00',
-    category: 'Fitness',
-  },
-  {
-    id: '4',
-    name: 'Drink 8 glasses of water',
-    description: 'Stay hydrated throughout the day',
-    icon: 'droplet',
-    color: 'bg-cyan-200 dark:bg-cyan-900',
-    frequency: 'daily',
-    createdAt: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString(),
-    updatedAt: new Date().toISOString(),
-    completions: {
-      [format(new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd')]: {
-        date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-        completed: true,
-      },
-      [format(new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd')]: {
-        date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-        completed: true,
-      },
-      [format(new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd')]: {
-        date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-        completed: true,
-      },
-    },
-    streak: 3,
-    bestStreak: 10,
-    totalCompletions: 30,
-    category: 'Health',
-  },
-];
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from './AuthContext';
 
 interface HabitContextType {
   habits: Habit[];
@@ -122,111 +17,328 @@ interface HabitContextType {
   getHabitCompletion: (habit: Habit, date: Date) => HabitCompletion | undefined;
   shouldCompleteToday: (habit: Habit) => boolean;
   getCompletionStatus: () => { completed: number; total: number };
+  loading: boolean;
+  error: string | null;
 }
 
 export const HabitContext = createContext<HabitContextType | undefined>(undefined);
 
 export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [habits, setHabits] = useState<Habit[]>(() => {
-    const savedHabits = localStorage.getItem('habits');
-    return savedHabits ? JSON.parse(savedHabits) : initialHabits;
-  });
+  const [habits, setHabits] = useState<Habit[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
 
+  // Fetch habits from Supabase when component mounts or user changes
   useEffect(() => {
-    localStorage.setItem('habits', JSON.stringify(habits));
-  }, [habits]);
+    const fetchHabits = async () => {
+      if (!user) {
+        setHabits([]);
+        setLoading(false);
+        return;
+      }
 
-  const addHabit = (newHabit: Omit<Habit, 'id' | 'createdAt' | 'updatedAt' | 'completions' | 'streak' | 'bestStreak' | 'totalCompletions'>) => {
-    const now = new Date().toISOString();
-    const habit: Habit = {
-      ...newHabit,
-      id: Date.now().toString(),
-      createdAt: now,
-      updatedAt: now,
-      completions: {},
-      streak: 0,
-      bestStreak: 0,
-      totalCompletions: 0,
+      try {
+        setLoading(true);
+        
+        // Fetch habits
+        const { data: habitsData, error: habitsError } = await supabase
+          .from('habits')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (habitsError) throw habitsError;
+
+        // Fetch completions for all habits
+        const { data: completionsData, error: completionsError } = await supabase
+          .from('habit_completions')
+          .select('*')
+          .in('habit_id', habitsData.map(h => h.id));
+
+        if (completionsError) throw completionsError;
+
+        // Format habits with completions
+        const formattedHabits = habitsData.map(habit => {
+          const habitCompletions = completionsData.filter(c => c.habit_id === habit.id);
+          
+          // Convert completions array to record with date as key
+          const completionsRecord: Record<string, HabitCompletion> = {};
+          habitCompletions.forEach(completion => {
+            const dateStr = format(new Date(completion.date), 'yyyy-MM-dd');
+            completionsRecord[dateStr] = {
+              date: new Date(completion.date).toISOString(),
+              completed: completion.completed,
+              notes: completion.notes || undefined
+            };
+          });
+
+          return {
+            id: habit.id,
+            name: habit.name,
+            description: habit.description || undefined,
+            icon: habit.icon || undefined,
+            color: habit.color || undefined,
+            frequency: habit.frequency,
+            weekDays: habit.week_days || undefined,
+            monthDays: habit.month_days || undefined,
+            customDays: habit.custom_days || undefined,
+            createdAt: habit.created_at,
+            updatedAt: habit.updated_at,
+            streak: habit.streak,
+            bestStreak: habit.best_streak,
+            totalCompletions: habit.total_completions,
+            reminder: habit.reminder || undefined,
+            category: habit.category || 'Personal',
+            archived: habit.archived || false,
+            completions: completionsRecord
+          } as Habit;
+        });
+
+        setHabits(formattedHabits);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching habits:', err);
+        setError('Failed to load habits. Please try again later.');
+        toast({
+          title: 'Error',
+          description: 'Failed to load habits. Please try again.',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoading(false);
+      }
     };
-    
-    setHabits((prevHabits) => [...prevHabits, habit]);
-    toast({
-      title: "Habit created",
-      description: `${habit.name} has been added to your habits.`,
-    });
+
+    fetchHabits();
+  }, [user]);
+
+  const addHabit = async (newHabit: Omit<Habit, 'id' | 'createdAt' | 'updatedAt' | 'completions' | 'streak' | 'bestStreak' | 'totalCompletions'>) => {
+    if (!user) {
+      toast({
+        title: 'Error',
+        description: 'You must be logged in to add habits',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      const { week_days, month_days, custom_days, ...rest } = newHabit as any;
+      
+      const { data, error } = await supabase
+        .from('habits')
+        .insert([{
+          user_id: user.id,
+          ...rest,
+          week_days: newHabit.weekDays,
+          month_days: newHabit.monthDays,
+          custom_days: newHabit.customDays,
+          streak: 0,
+          best_streak: 0,
+          total_completions: 0
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      const habit: Habit = {
+        id: data.id,
+        name: data.name,
+        description: data.description || undefined,
+        icon: data.icon || undefined,
+        color: data.color || undefined,
+        frequency: data.frequency,
+        weekDays: data.week_days || undefined,
+        monthDays: data.month_days || undefined,
+        customDays: data.custom_days || undefined,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
+        streak: data.streak,
+        bestStreak: data.best_streak,
+        totalCompletions: data.total_completions,
+        reminder: data.reminder || undefined,
+        category: data.category || 'Personal',
+        archived: data.archived || false,
+        completions: {}
+      };
+      
+      setHabits((prevHabits) => [habit, ...prevHabits]);
+      
+      toast({
+        title: 'Habit created',
+        description: `${habit.name} has been added to your habits.`,
+      });
+    } catch (err) {
+      console.error('Error adding habit:', err);
+      toast({
+        title: 'Error',
+        description: 'Failed to add habit. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
-  const updateHabit = (updatedHabit: Habit) => {
-    setHabits((prevHabits) =>
-      prevHabits.map((habit) =>
-        habit.id === updatedHabit.id
-          ? { ...updatedHabit, updatedAt: new Date().toISOString() }
-          : habit
-      )
-    );
-    toast({
-      title: "Habit updated",
-      description: `${updatedHabit.name} has been updated.`,
-    });
+  const updateHabit = async (updatedHabit: Habit) => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('habits')
+        .update({
+          name: updatedHabit.name,
+          description: updatedHabit.description,
+          icon: updatedHabit.icon,
+          color: updatedHabit.color,
+          frequency: updatedHabit.frequency,
+          week_days: updatedHabit.weekDays,
+          month_days: updatedHabit.monthDays,
+          custom_days: updatedHabit.customDays,
+          reminder: updatedHabit.reminder,
+          category: updatedHabit.category,
+          archived: updatedHabit.archived,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', updatedHabit.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setHabits((prevHabits) =>
+        prevHabits.map((habit) =>
+          habit.id === updatedHabit.id
+            ? { ...updatedHabit, updatedAt: new Date().toISOString() }
+            : habit
+        )
+      );
+      
+      toast({
+        title: 'Habit updated',
+        description: `${updatedHabit.name} has been updated.`,
+      });
+    } catch (err) {
+      console.error('Error updating habit:', err);
+      toast({
+        title: 'Error',
+        description: 'Failed to update habit. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
-  const deleteHabit = (id: string) => {
+  const deleteHabit = async (id: string) => {
+    if (!user) return;
+
     const habitName = habits.find(h => h.id === id)?.name;
-    setHabits((prevHabits) => prevHabits.filter((habit) => habit.id !== id));
-    toast({
-      title: "Habit deleted",
-      description: habitName ? `${habitName} has been removed.` : "Habit has been removed.",
-      variant: "destructive",
-    });
-  };
-
-  const calculateStreak = (completions: Record<string, HabitCompletion>, frequency: string): number => {
-    if (Object.keys(completions).length === 0) return 0;
     
-    // For simple demo, just returning the current streak value
-    // In a real app, this would calculate based on completion dates and frequency
-    return Object.keys(completions).length;
+    try {
+      const { error } = await supabase
+        .from('habits')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setHabits((prevHabits) => prevHabits.filter((habit) => habit.id !== id));
+      
+      toast({
+        title: 'Habit deleted',
+        description: habitName ? `${habitName} has been removed.` : 'Habit has been removed.',
+        variant: 'destructive',
+      });
+    } catch (err) {
+      console.error('Error deleting habit:', err);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete habit. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
-  const toggleCompletion = (id: string, date: Date, notes?: string) => {
+  const toggleCompletion = async (id: string, date: Date, notes?: string) => {
+    if (!user) return;
+
     const dateStr = format(date, 'yyyy-MM-dd');
+    const habit = habits.find(h => h.id === id);
     
-    setHabits((prevHabits) =>
-      prevHabits.map((habit) => {
-        if (habit.id !== id) return habit;
+    if (!habit) return;
+    
+    const isCompleted = !!habit.completions[dateStr]?.completed;
+    
+    try {
+      if (isCompleted) {
+        // Delete the completion
+        const { error } = await supabase
+          .from('habit_completions')
+          .delete()
+          .eq('habit_id', id)
+          .eq('date', dateStr);
+
+        if (error) throw error;
         
-        const newCompletions = { ...habit.completions };
+        // Update local state
+        const newHabits = [...habits];
+        const habitIndex = newHabits.findIndex(h => h.id === id);
         
-        if (newCompletions[dateStr]?.completed) {
+        if (habitIndex !== -1) {
+          const newCompletions = { ...newHabits[habitIndex].completions };
           delete newCompletions[dateStr];
           
-          return {
-            ...habit,
+          newHabits[habitIndex] = {
+            ...newHabits[habitIndex],
             completions: newCompletions,
-            streak: Math.max(0, habit.streak - (isToday(date) ? 1 : 0)),
-            totalCompletions: Math.max(0, habit.totalCompletions - 1),
             updatedAt: new Date().toISOString(),
           };
-        } else {
-          newCompletions[dateStr] = {
-            date: date.toISOString(),
-            completed: true,
-            notes,
-          };
           
-          const newStreak = habit.streak + (isToday(date) ? 1 : 0);
-          
-          return {
-            ...habit,
-            completions: newCompletions,
-            streak: newStreak,
-            bestStreak: Math.max(habit.bestStreak, newStreak),
-            totalCompletions: habit.totalCompletions + 1,
-            updatedAt: new Date().toISOString(),
-          };
+          setHabits(newHabits);
         }
-      })
-    );
+      } else {
+        // Insert new completion
+        const { error } = await supabase
+          .from('habit_completions')
+          .insert([{
+            habit_id: id,
+            date: dateStr,
+            completed: true,
+            notes: notes || null
+          }]);
+
+        if (error) throw error;
+        
+        // The updated habit stats will come from the database via the trigger
+        // For now, just update the completion in the UI
+        const newHabits = [...habits];
+        const habitIndex = newHabits.findIndex(h => h.id === id);
+        
+        if (habitIndex !== -1) {
+          const newCompletions = { 
+            ...newHabits[habitIndex].completions,
+            [dateStr]: {
+              date: date.toISOString(),
+              completed: true,
+              notes
+            }
+          };
+          
+          newHabits[habitIndex] = {
+            ...newHabits[habitIndex],
+            completions: newCompletions,
+            updatedAt: new Date().toISOString(),
+          };
+          
+          setHabits(newHabits);
+        }
+      }
+    } catch (err) {
+      console.error('Error toggling completion:', err);
+      toast({
+        title: 'Error',
+        description: 'Failed to update habit completion. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
   const getHabitsByCategory = () => {
@@ -304,6 +416,8 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         getHabitCompletion,
         shouldCompleteToday,
         getCompletionStatus,
+        loading,
+        error
       }}
     >
       {children}

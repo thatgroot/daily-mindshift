@@ -11,28 +11,34 @@ import Settings from "./pages/Settings";
 import NewHabit from "./pages/NewHabit";
 import NotFound from "./pages/NotFound";
 import Docs from "./pages/Docs";
+import Auth from "./pages/Auth";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { AuthProvider } from "./contexts/AuthContext";
+import PrivateRoute from "./components/PrivateRoute";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <ErrorBoundary>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/calendar" element={<Calendar />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/new-habit" element={<NewHabit />} />
-            <Route path="/docs" element={<Docs />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </ErrorBoundary>
-      </BrowserRouter>
+      <AuthProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <ErrorBoundary>
+            <Routes>
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/" element={<PrivateRoute><Index /></PrivateRoute>} />
+              <Route path="/calendar" element={<PrivateRoute><Calendar /></PrivateRoute>} />
+              <Route path="/analytics" element={<PrivateRoute><Analytics /></PrivateRoute>} />
+              <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
+              <Route path="/new-habit" element={<PrivateRoute><NewHabit /></PrivateRoute>} />
+              <Route path="/docs" element={<PrivateRoute><Docs /></PrivateRoute>} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </ErrorBoundary>
+        </BrowserRouter>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

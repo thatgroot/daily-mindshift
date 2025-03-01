@@ -9,13 +9,15 @@ import HabitCard from './HabitCard';
 import ProgressRing from './ProgressRing';
 import HabitForm from './HabitForm';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, Flame, Plus, TrendingUp, Award, LayoutGrid } from 'lucide-react';
+import { Calendar, Flame, Plus, TrendingUp, Award, LayoutGrid, Loader2 } from 'lucide-react';
 import { Habit } from '@/types/habit';
 import StatsCard from './StatsCard';
 import AnimatedCounter from './AnimatedCounter';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Dashboard: React.FC = () => {
-  const { habits, getHabitsByCategory, shouldCompleteToday, getCompletionStatus } = useHabits();
+  const { habits, getHabitsByCategory, shouldCompleteToday, getCompletionStatus, loading, error } = useHabits();
+  const { user } = useAuth();
   const [formOpen, setFormOpen] = useState(false);
   const [selectedHabit, setSelectedHabit] = useState<Habit | undefined>(undefined);
   
@@ -35,6 +37,26 @@ const Dashboard: React.FC = () => {
     setSelectedHabit(habit);
     setFormOpen(true);
   };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh]">
+        <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+        <p className="text-muted-foreground">Loading your habits...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh]">
+        <div className="text-destructive mb-4">⚠️</div>
+        <h3 className="text-xl font-medium mb-2">Something went wrong</h3>
+        <p className="text-muted-foreground mb-4">{error}</p>
+        <Button onClick={() => window.location.reload()}>Try Again</Button>
+      </div>
+    );
+  }
   
   return (
     <div className="space-y-6">
