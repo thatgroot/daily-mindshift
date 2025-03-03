@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { BarChart, Calendar, CheckCircle, Download, Image, Share2, Trophy, AlertTriangle } from 'lucide-react';
 import { useHabits } from '@/contexts/HabitContext';
-import { ProgressRing } from '@/components/ProgressRing';
+import ProgressRing from '@/components/ProgressRing';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import html2canvas from 'html2canvas';
