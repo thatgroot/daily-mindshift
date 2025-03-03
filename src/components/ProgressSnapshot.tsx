@@ -145,9 +145,11 @@ const ProgressSnapshot = () => {
                     <CardContent className="pb-2 pt-0">
                       <div className="flex justify-center">
                         <ProgressRing 
-                          percentage={completionRate} 
+                          value={completed} 
+                          max={total}
+                          size={80}
                           strokeWidth={5}
-                          radius={40}
+                          showPercentage={true}
                         />
                       </div>
                       <p className="text-center mt-2 text-sm font-medium">
