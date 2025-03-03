@@ -8,9 +8,11 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Settings as SettingsIcon, Bell, Moon, Calendar, Upload, Download, Trash2 } from 'lucide-react';
+import { Settings as SettingsIcon, Bell, Moon, Calendar, Upload, Download, Trash2, User } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
+import ProfileCustomization from '@/components/ProfileCustomization';
+import ProgressSnapshot from '@/components/ProgressSnapshot';
 
 const Settings = () => {
   const [darkMode, setDarkMode] = React.useState(() => {
@@ -79,11 +81,13 @@ const Settings = () => {
           <h1 className="text-3xl font-semibold tracking-tight">Settings</h1>
           <p className="text-muted-foreground mt-1">Customize your Daily Routines experience</p>
         </div>
+        <ProgressSnapshot />
       </div>
       
       <Tabs defaultValue="general" className="w-full">
         <TabsList className="mb-4">
           <TabsTrigger value="general">General</TabsTrigger>
+          <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
           <TabsTrigger value="data">Data Management</TabsTrigger>
         </TabsList>
@@ -171,6 +175,22 @@ const Settings = () => {
                 </div>
                 <Switch id="past-days" defaultChecked />
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="profile">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <User className="h-5 w-5" /> Profile Settings
+              </CardTitle>
+              <CardDescription>
+                Customize your profile and appearance
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ProfileCustomization />
             </CardContent>
           </Card>
         </TabsContent>

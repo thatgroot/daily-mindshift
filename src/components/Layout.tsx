@@ -5,6 +5,7 @@ import { ModeToggle } from './ModeToggle';
 import { Menu } from 'lucide-react';
 import { Button } from './ui/button';
 import Sidebar from './Sidebar';
+import NotificationCenter from './NotificationCenter';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -34,6 +35,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
           
           <div className="flex-1 flex items-center justify-end space-x-2">
+            <NotificationCenter />
             <ModeToggle />
           </div>
         </div>

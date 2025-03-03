@@ -15,6 +15,7 @@ import Auth from "./pages/Auth";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { AuthProvider } from "./contexts/AuthContext";
 import PrivateRoute from "./components/PrivateRoute";
+import OnboardingTutorial from "./components/OnboardingTutorial";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <ErrorBoundary>
+            <OnboardingTutorial />
             <Routes>
               <Route path="/auth" element={<Auth />} />
               <Route path="/" element={<PrivateRoute><Index /></PrivateRoute>} />
