@@ -1,15 +1,15 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Card, CardContent } from "@/components/ui/card";
 import { Camera, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 const themes = [
   { name: "Default", color: "bg-background" },
@@ -27,34 +27,149 @@ const ProfileCustomization = () => {
   const [bio, setBio] = useState("");
   const [selectedTheme, setSelectedTheme] = useState("Default");
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setProfileImage(event.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+  // Fetch user profile data from Supabase
+  useEffect(() => {
+    if (user) {
+      fetchProfileData();
+    } else {
+      setLoading(false);
+    }
+  }, [user]);
+
+  const fetchProfileData = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('display_name, bio, theme, profile_image')
+        .eq('user_id', user?.id)
+        .maybeSingle();
+
+      if (error) {
+        console.error('Error fetching profile:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load profile data",
+          variant: "destructive",
+        });
+      } else if (data) {
+        setDisplayName(data.display_name || user?.email?.split('@')[0] || "");
+        setBio(data.bio || "");
+        setSelectedTheme(data.theme || "Default");
+        setProfileImage(data.profile_image || null);
+        
+        // Apply theme immediately on load
+        document.documentElement.setAttribute('data-theme', data.theme?.toLowerCase() || 'default');
+      }
+    } catch (error) {
+      console.error('Error loading profile:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const saveProfile = () => {
-    // In a real implementation, this would save to a backend
-    localStorage.setItem('userProfile', JSON.stringify({
-      displayName,
-      bio,
-      theme: selectedTheme,
-      profileImage
-    }));
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
     
-    // Apply theme immediately
-    document.documentElement.setAttribute('data-theme', selectedTheme.toLowerCase());
+    try {
+      setLoading(true);
+      
+      // Upload image to Supabase Storage
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${user.id}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('profile_images')
+        .upload(filePath, file);
+      
+      if (uploadError) {
+        throw uploadError;
+      }
+      
+      // Get the public URL
+      const { data: publicUrl } = supabase.storage
+        .from('profile_images')
+        .getPublicUrl(filePath);
+      
+      if (publicUrl) {
+        setProfileImage(publicUrl.publicUrl);
+      }
+      
+      toast({
+        title: "Image Uploaded",
+        description: "Profile image has been updated.",
+      });
+      
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({
+        title: "Upload Failed",
+        description: "Failed to upload profile image.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const saveProfile = async () => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to save your profile settings.",
+        variant: "destructive",
+      });
+      return;
+    }
     
-    toast({
-      title: "Profile Updated",
-      description: "Your profile has been successfully updated!",
-    });
+    try {
+      setLoading(true);
+      
+      const profileData = {
+        user_id: user.id,
+        display_name: displayName,
+        bio,
+        theme: selectedTheme,
+        profile_image: profileImage
+      };
+      
+      const { error } = await supabase
+        .from('user_profiles')
+        .upsert(profileData, { 
+          onConflict: 'user_id',
+          ignoreDuplicates: false 
+        });
+      
+      if (error) throw error;
+      
+      // Apply theme immediately
+      document.documentElement.setAttribute('data-theme', selectedTheme.toLowerCase());
+      
+      // Save to localStorage as fallback for the client-side theme application
+      localStorage.setItem('userProfile', JSON.stringify({
+        displayName,
+        bio,
+        theme: selectedTheme,
+        profileImage
+      }));
+      
+      toast({
+        title: "Profile Updated",
+        description: "Your profile has been successfully updated!",
+      });
+      
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save profile settings",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -81,6 +196,7 @@ const ProfileCustomization = () => {
               className="hidden" 
               accept="image/*"
               onChange={handleImageUpload}
+              disabled={loading}
             />
           </div>
         </div>
@@ -94,6 +210,7 @@ const ProfileCustomization = () => {
             value={displayName} 
             onChange={(e) => setDisplayName(e.target.value)}
             placeholder="Your name"
+            disabled={loading}
           />
         </div>
         
@@ -106,6 +223,7 @@ const ProfileCustomization = () => {
             placeholder="Tell us about yourself..."
             className="resize-none"
             rows={3}
+            disabled={loading}
           />
         </div>
         
@@ -115,6 +233,7 @@ const ProfileCustomization = () => {
             value={selectedTheme} 
             onValueChange={setSelectedTheme} 
             className="grid grid-cols-3 gap-2"
+            disabled={loading}
           >
             {themes.map((theme) => (
               <div key={theme.name} className="flex items-center space-x-2">
@@ -128,8 +247,12 @@ const ProfileCustomization = () => {
           </RadioGroup>
         </div>
         
-        <Button onClick={saveProfile} className="w-full mt-6">
-          Save Profile
+        <Button 
+          onClick={saveProfile} 
+          className="w-full mt-6"
+          disabled={loading}
+        >
+          {loading ? "Saving..." : "Save Profile"}
         </Button>
       </div>
     </div>

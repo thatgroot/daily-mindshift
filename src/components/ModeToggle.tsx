@@ -8,14 +8,47 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 export function ModeToggle() {
+  const { user } = useAuth();
   const [theme, setThemeState] = React.useState<"theme-light" | "dark" | "system">("theme-light");
 
   React.useEffect(() => {
-    const isDarkMode = document.documentElement.classList.contains("dark");
-    setThemeState(isDarkMode ? "dark" : "theme-light");
-  }, []);
+    // Try to load user's theme preference from Supabase first
+    const fetchUserTheme = async () => {
+      if (user) {
+        try {
+          const { data } = await supabase
+            .from('user_profiles')
+            .select('theme')
+            .eq('user_id', user.id)
+            .maybeSingle();
+          
+          if (data?.theme) {
+            // Convert theme name to expected format
+            const themeValue = data.theme.toLowerCase() === 'default' 
+              ? 'theme-light' 
+              : data.theme.toLowerCase() === 'dark' 
+                ? 'dark' 
+                : 'theme-light';
+            
+            setThemeState(themeValue as "theme-light" | "dark" | "system");
+            return;
+          }
+        } catch (error) {
+          console.error('Error fetching user theme:', error);
+        }
+      }
+      
+      // Fallback to checking current document state
+      const isDarkMode = document.documentElement.classList.contains("dark");
+      setThemeState(isDarkMode ? "dark" : "theme-light");
+    };
+    
+    fetchUserTheme();
+  }, [user]);
 
   React.useEffect(() => {
     const isDark =
@@ -24,6 +57,11 @@ export function ModeToggle() {
         window.matchMedia("(prefers-color-scheme: dark)").matches);
 
     document.documentElement.classList[isDark ? "add" : "remove"]("dark");
+    
+    // When theme changes, update data-theme attribute for custom theming
+    const dataTheme = theme === "dark" ? "dark" : "default";
+    document.documentElement.setAttribute('data-theme', dataTheme);
+    
   }, [theme]);
 
   return (
