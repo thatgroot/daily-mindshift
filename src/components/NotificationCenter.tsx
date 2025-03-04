@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Bell, X, CheckCircle, Calendar, Award, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,7 +7,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { useHabits } from '@/contexts/HabitContext';
+import { HabitContext } from '@/contexts/HabitContext';
 
 interface Notification {
   id: string;
@@ -23,16 +23,16 @@ const NotificationCenter = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [open, setOpen] = useState(false);
-  const { habits } = useHabits();
+  const habitContext = useContext(HabitContext);
 
-  // Generate mock notifications based on actual habits
+  // Generate mock notifications based on actual habits or use empty array if no context
   useEffect(() => {
-    if (habits.length > 0) {
+    if (habitContext && habitContext.habits.length > 0) {
       const mockNotifications: Notification[] = [
         {
           id: '1',
           title: 'Habit Completed',
-          message: `You've completed "${habits[0]?.name || 'your habit'}" today!`,
+          message: `You've completed "${habitContext.habits[0]?.name || 'your habit'}" today!`,
           timestamp: new Date(),
           read: false,
           type: 'completion',
@@ -41,7 +41,7 @@ const NotificationCenter = () => {
         {
           id: '2',
           title: 'New Streak Milestone',
-          message: `You're on a 7-day streak for "${habits[0]?.name || 'your habit'}"! Keep it up!`,
+          message: `You're on a 7-day streak for "${habitContext.habits[0]?.name || 'your habit'}"! Keep it up!`,
           timestamp: new Date(Date.now() - 86400000),
           read: false,
           type: 'streak',
@@ -69,8 +69,24 @@ const NotificationCenter = () => {
       
       setNotifications(mockNotifications);
       setUnreadCount(mockNotifications.filter(n => !n.read).length);
+    } else {
+      // Set default notifications when no habit context is available
+      const defaultNotifications: Notification[] = [
+        {
+          id: '1',
+          title: 'Habit Formation Tip',
+          message: 'Try habit stacking: link a new habit to an existing one to increase success!',
+          timestamp: new Date(),
+          read: false,
+          type: 'tip',
+          icon: <BookOpen className="h-4 w-4 text-purple-500" />
+        }
+      ];
+      
+      setNotifications(defaultNotifications);
+      setUnreadCount(defaultNotifications.filter(n => !n.read).length);
     }
-  }, [habits]);
+  }, [habitContext]);
 
   const markAllAsRead = () => {
     setNotifications(notifications.map(n => ({ ...n, read: true })));
