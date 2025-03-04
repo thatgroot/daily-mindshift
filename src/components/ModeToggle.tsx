@@ -10,9 +10,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 export function ModeToggle() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [theme, setThemeState] = React.useState<"theme-light" | "dark" | "system">("theme-light");
 
   React.useEffect(() => {
@@ -20,11 +22,16 @@ export function ModeToggle() {
     const fetchUserTheme = async () => {
       if (user) {
         try {
-          const { data } = await supabase
+          const { data, error } = await supabase
             .from('user_profiles')
             .select('theme')
             .eq('user_id', user.id)
             .maybeSingle();
+          
+          if (error) {
+            console.error('Error fetching user theme:', error);
+            return;
+          }
           
           if (data?.theme) {
             // Convert theme name to expected format
@@ -62,7 +69,45 @@ export function ModeToggle() {
     const dataTheme = theme === "dark" ? "dark" : "default";
     document.documentElement.setAttribute('data-theme', dataTheme);
     
-  }, [theme]);
+    // If user is authenticated, save theme preference to Supabase
+    const saveThemePreference = async () => {
+      if (user) {
+        try {
+          const themeValue = theme === "dark" ? "Dark" : "Default";
+          
+          const { error } = await supabase
+            .from('user_profiles')
+            .upsert({ 
+              user_id: user.id, 
+              theme: themeValue 
+            }, { 
+              onConflict: 'user_id', 
+              ignoreDuplicates: false 
+            });
+            
+          if (error) {
+            console.error('Error saving theme preference:', error);
+          }
+        } catch (error) {
+          console.error('Error saving theme preference:', error);
+        }
+      }
+    };
+    
+    saveThemePreference();
+    
+  }, [theme, user]);
+
+  const setTheme = (newTheme: "theme-light" | "dark" | "system") => {
+    setThemeState(newTheme);
+    
+    // Show toast notification for theme change
+    const themeName = newTheme === "dark" ? "Dark" : "Light";
+    toast({
+      title: `${themeName} theme applied`,
+      description: `The ${themeName.toLowerCase()} theme has been applied to your interface.`,
+    });
+  };
 
   return (
     <DropdownMenu>
@@ -75,13 +120,13 @@ export function ModeToggle() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem
-          onClick={() => setThemeState("theme-light")}
+          onClick={() => setTheme("theme-light")}
           className="flex gap-2 items-center"
         >
           <Sun className="h-4 w-4" /> Light
         </DropdownMenuItem>
         <DropdownMenuItem
-          onClick={() => setThemeState("dark")}
+          onClick={() => setTheme("dark")}
           className="flex gap-2 items-center"
         >
           <Moon className="h-4 w-4" /> Dark
