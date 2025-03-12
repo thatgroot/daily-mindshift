@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import HabitCard from './HabitCard';
-import ProgressRing from './ProgressRing';
 import HabitForm from './HabitForm';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
@@ -30,6 +29,10 @@ import { Habit } from '@/types/habit';
 import StatsCard from './StatsCard';
 import AnimatedCounter from './AnimatedCounter';
 import { useAuth } from '@/contexts/AuthContext';
+// Import new visualization components
+import ActivityHeatmap from './ActivityHeatmap';
+import HabitCorrelations from './HabitCorrelations';
+import HabitMatrix from './HabitMatrix';
 
 const Dashboard: React.FC = () => {
   const { habits, getHabitsByCategory, shouldCompleteToday, getCompletionStatus, loading, error } = useHabits();
@@ -128,6 +131,13 @@ const Dashboard: React.FC = () => {
           icon={<TrendingUp className="h-5 w-5" />}
           trend={+12}
         />
+      </div>
+
+      {/* Analytics Overview */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <ActivityHeatmap habits={habits} />
+        <HabitCorrelations habits={habits} />
+        <HabitMatrix habits={habits} />
       </div>
 
       {/* Main Tabs */}

@@ -23,7 +23,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
-        <div className="bg-gradient-to-br from-background via-background to-muted/30 dark:from-gray-950 dark:via-gray-900 dark:to-gray-800 min-h-screen transition-colors duration-200">
+        <div className="bg-gradient-to-br from-background via-background/90 to-primary/5 dark:from-gray-950 dark:via-gray-900/95 dark:to-primary/10 min-h-screen transition-colors duration-300">
           <Toaster />
           <Sonner />
           <BrowserRouter>
