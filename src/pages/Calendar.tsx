@@ -45,30 +45,41 @@ const WeekView = () => {
     });
   };
 
+  // GitHub-style color function
+  const getGithubStyleColor = (completed: number, total: number) => {
+    if (total === 0) return "bg-muted";
+    const ratio = completed / total;
+    if (ratio === 0) return "bg-muted";
+    if (ratio < 0.25) return "bg-[#0e4429] border-[#0e4429]";
+    if (ratio < 0.5) return "bg-[#006d32] border-[#006d32]";
+    if (ratio < 0.75) return "bg-[#26a641] border-[#26a641]";
+    return "bg-[#39d353] border-[#39d353]";
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Calendar</h1>
+          <h1 className="text-3xl font-semibold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Calendar</h1>
           <p className="text-muted-foreground mt-1">View your habits by date</p>
         </div>
         <div className="flex space-x-2">
-          <Button variant="outline" size="sm" onClick={previousWeek}>
+          <Button variant="outline" size="sm" onClick={previousWeek} className="rounded-full">
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="sm" onClick={today}>
+          <Button variant="outline" size="sm" onClick={today} className="rounded-full">
             Today
           </Button>
-          <Button variant="outline" size="sm" onClick={nextWeek}>
+          <Button variant="outline" size="sm" onClick={nextWeek} className="rounded-full">
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
       </div>
 
-      <Card>
+      <Card className="bg-gradient-to-br from-card to-background border shadow-sm">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2">
-            <CalendarIcon className="h-5 w-5" />
+            <CalendarIcon className="h-5 w-5 text-accent" />
             <span>{format(startOfCurrentWeek, 'MMMM d')} - {format(endOfCurrentWeek, 'MMMM d, yyyy')}</span>
           </CardTitle>
         </CardHeader>
@@ -83,8 +94,10 @@ const WeekView = () => {
                 <div 
                   key={day.toString()} 
                   className={cn(
-                    "flex flex-col items-center p-2 rounded-lg border",
-                    isToday ? "bg-accent/10 border-accent" : ""
+                    "flex flex-col items-center p-2 rounded-lg transition-all duration-200",
+                    isToday 
+                      ? "bg-accent/10 border border-accent"
+                      : "bg-card hover:shadow-sm border border-border hover:border-accent/50"
                   )}
                 >
                   <div className="text-sm font-medium mb-1">{format(day, 'EEE')}</div>
@@ -95,7 +108,13 @@ const WeekView = () => {
                     {format(day, 'd')}
                   </div>
                   {dayHabits.length > 0 ? (
-                    <Badge variant="outline" className="text-xs">
+                    <Badge 
+                      variant="outline" 
+                      className={cn(
+                        "text-xs text-white",
+                        getGithubStyleColor(completed, dayHabits.length)
+                      )}
+                    >
                       {completed}/{dayHabits.length}
                     </Badge>
                   ) : (
@@ -121,14 +140,25 @@ const WeekView = () => {
                         <div 
                           key={habit.id} 
                           className={cn(
-                            "p-3 rounded-lg border flex items-center",
-                            isCompleted ? "bg-accent/10 border-accent/40" : ""
+                            "p-3 rounded-lg border flex items-center transition-all duration-200",
+                            isCompleted 
+                              ? "bg-gradient-to-r from-accent/10 to-accent/5 border-accent/40" 
+                              : "hover:bg-muted/20"
                           )}
                         >
-                          <div className={cn("w-2 h-2 rounded-full mr-3", habit.color || "bg-accent")} />
+                          <div className={cn(
+                            "w-2 h-2 rounded-full mr-3",
+                            habit.color || "bg-accent"
+                          )} />
                           <span>{habit.name}</span>
                           {isCompleted && (
-                            <Badge className="ml-auto" variant="outline">Completed</Badge>
+                            <Badge 
+                              className="ml-auto" 
+                              variant="outline"
+                              style={{ backgroundColor: "#39d353", color: "white", borderColor: "#39d353" }}
+                            >
+                              Completed
+                            </Badge>
                           )}
                         </div>
                       );

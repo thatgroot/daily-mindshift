@@ -19,19 +19,19 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const closeSidebar = () => setSidebarOpen(false);
   
   return (
-    <div className="min-h-screen flex flex-col bg-background animate-fade-in">
-      <header className="border-b supports-backdrop-blur:bg-background/60 sticky top-0 z-40 bg-background/95 backdrop-blur">
+    <div className="min-h-screen flex flex-col bg-transparent animate-fade-in">
+      <header className="border-b supports-backdrop-blur:bg-background/60 sticky top-0 z-40 bg-background/95 backdrop-blur shadow-sm">
         <div className="container flex h-16 items-center">
           <div className="flex items-center space-x-3">
             <Button 
               variant="ghost" 
               size="icon" 
-              className="rounded-full"
+              className="rounded-full hover:bg-accent/10"
               onClick={toggleSidebar}
             >
               <Menu className="h-5 w-5" />
             </Button>
-            <span className="font-bold text-xl tracking-tight">Daily Routines</span>
+            <span className="font-bold text-xl tracking-tight bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">Daily Routines</span>
           </div>
           
           <div className="flex-1 flex items-center justify-end space-x-2">

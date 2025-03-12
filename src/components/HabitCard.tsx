@@ -36,11 +36,22 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, className, onEdit }) => {
     }
   };
 
+  // Function to get GitHub-style color based on streak
+  const getStreakColor = (streak: number) => {
+    if (streak === 0) return 'bg-muted text-muted-foreground';
+    if (streak < 3) return 'bg-[#0e4429] text-white';
+    if (streak < 7) return 'bg-[#006d32] text-white';
+    if (streak < 14) return 'bg-[#26a641] text-white';
+    return 'bg-[#39d353] text-white';
+  };
+
   return (
     <Card 
       className={cn(
         "overflow-hidden transition-all duration-200 hover:shadow-md rounded-xl",
-        isCompleted ? "border-accent/40 bg-accent/5" : "border-border",
+        isCompleted 
+          ? "border-accent/40 bg-gradient-to-r from-accent/5 to-accent/10" 
+          : "border-border hover:bg-gradient-to-r hover:from-background hover:to-muted/20",
         className
       )}
     >
@@ -52,7 +63,9 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, className, onEdit }) => {
             onClick={() => toggleCompletion(habit.id, today)}
             className={cn(
               "rounded-full mr-3 transition-all duration-300",
-              isCompleted ? "text-accent hover:text-accent/80" : "text-muted-foreground hover:text-foreground"
+              isCompleted 
+                ? "text-accent hover:text-accent/80 hover:bg-accent/10" 
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/20"
             )}
           >
             {isCompleted ? (
@@ -70,7 +83,7 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, className, onEdit }) => {
           </div>
           
           <div className={cn(
-            "w-2 h-2 rounded-full mr-4",
+            "w-3 h-3 rounded-full mr-4",
             habit.color || "bg-accent"
           )}></div>
           
@@ -90,10 +103,13 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, className, onEdit }) => {
         </div>
       </CardContent>
       
-      <CardFooter className="flex p-4 pt-0 gap-3 justify-between bg-secondary/30">
+      <CardFooter className="flex p-4 pt-0 gap-3 justify-between bg-gradient-to-r from-secondary/30 to-secondary/10">
         <div className="flex gap-2">
           {habit.streak > 0 && (
-            <Badge variant="outline" className="flex items-center gap-1.5 bg-background/80">
+            <Badge variant="outline" className={cn(
+              "flex items-center gap-1.5", 
+              getStreakColor(habit.streak)
+            )}>
               <Flame className="h-3.5 w-3.5" />
               <span>{habit.streak} day streak</span>
             </Badge>

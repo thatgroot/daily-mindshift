@@ -23,23 +23,25 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <ErrorBoundary>
-            <OnboardingTutorial />
-            <Routes>
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/" element={<PrivateRoute><Index /></PrivateRoute>} />
-              <Route path="/calendar" element={<PrivateRoute><Calendar /></PrivateRoute>} />
-              <Route path="/analytics" element={<PrivateRoute><Analytics /></PrivateRoute>} />
-              <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
-              <Route path="/new-habit" element={<PrivateRoute><NewHabit /></PrivateRoute>} />
-              <Route path="/docs" element={<PrivateRoute><Docs /></PrivateRoute>} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </ErrorBoundary>
-        </BrowserRouter>
+        <div className="bg-gradient-to-br from-background via-background to-muted/30 min-h-screen">
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <ErrorBoundary>
+              <OnboardingTutorial />
+              <Routes>
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/" element={<PrivateRoute><Index /></PrivateRoute>} />
+                <Route path="/calendar" element={<PrivateRoute><Calendar /></PrivateRoute>} />
+                <Route path="/analytics" element={<PrivateRoute><Analytics /></PrivateRoute>} />
+                <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
+                <Route path="/new-habit" element={<PrivateRoute><NewHabit /></PrivateRoute>} />
+                <Route path="/docs" element={<PrivateRoute><Docs /></PrivateRoute>} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </ErrorBoundary>
+          </BrowserRouter>
+        </div>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
