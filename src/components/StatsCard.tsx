@@ -34,15 +34,15 @@ const StatsCard: React.FC<StatsCardProps> = ({
     
     switch(title.toLowerCase()) {
       case "today's progress":
-        return "bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20";
+        return "bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/10 hover:from-blue-50 hover:to-blue-100/80 dark:hover:from-blue-900/30 dark:hover:to-blue-800/20";
       case "current streak":
-        return "bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20";
+        return "bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/10 hover:from-amber-50 hover:to-amber-100/80 dark:hover:from-amber-900/30 dark:hover:to-amber-800/20";
       case "longest streak":
-        return "bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20";
+        return "bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/10 hover:from-purple-50 hover:to-purple-100/80 dark:hover:from-purple-900/30 dark:hover:to-purple-800/20";
       case "total completions":
-        return "bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20";
+        return "bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/10 hover:from-green-50 hover:to-green-100/80 dark:hover:from-green-900/30 dark:hover:to-green-800/20";
       default:
-        return "bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/20 dark:to-gray-700/20";
+        return "bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/20 dark:to-gray-700/10 hover:from-gray-50 hover:to-gray-100/80 dark:hover:from-gray-800/30 dark:hover:to-gray-700/20";
     }
   };
 
@@ -66,13 +66,13 @@ const StatsCard: React.FC<StatsCardProps> = ({
 
   // Function to get ring color
   const getRingColor = () => {
-    if (ringValue && ringMax) {
+    if (ringValue !== undefined && ringMax !== undefined) {
       const ratio = ringValue / ringMax;
       
       if (ratio === 0) return 'stroke-muted';
-      if (ratio < 0.25) return 'stroke-[#0e4429]';
-      if (ratio < 0.5) return 'stroke-[#006d32]';
-      if (ratio < 0.75) return 'stroke-[#26a641]';
+      if (ratio < 0.25) return 'stroke-[#0e4429] dark:stroke-[#39d353]/30';
+      if (ratio < 0.5) return 'stroke-[#006d32] dark:stroke-[#39d353]/50';
+      if (ratio < 0.75) return 'stroke-[#26a641] dark:stroke-[#39d353]/75';
       return 'stroke-[#39d353]';
     }
     

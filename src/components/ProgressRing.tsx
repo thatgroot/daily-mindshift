@@ -34,9 +34,9 @@ const ProgressRing: React.FC<ProgressRingProps> = ({
     const ratio = value / max;
     if (progressColor) return progressColor;
     if (ratio === 0) return 'stroke-muted';
-    if (ratio < 0.25) return 'stroke-[#0e4429]';
-    if (ratio < 0.5) return 'stroke-[#006d32]';
-    if (ratio < 0.75) return 'stroke-[#26a641]';
+    if (ratio < 0.25) return 'stroke-[#0e4429] dark:stroke-[#39d353]/30';
+    if (ratio < 0.5) return 'stroke-[#006d32] dark:stroke-[#39d353]/50';
+    if (ratio < 0.75) return 'stroke-[#26a641] dark:stroke-[#39d353]/75';
     return 'stroke-[#39d353]';
   };
 
@@ -50,7 +50,7 @@ const ProgressRing: React.FC<ProgressRingProps> = ({
           r={radius}
           fill="none"
           strokeWidth={strokeWidth}
-          className="stroke-secondary/40"
+          className="stroke-secondary/40 dark:stroke-gray-800"
         />
         
         {/* Progress circle */}

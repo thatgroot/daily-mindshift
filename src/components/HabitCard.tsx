@@ -39,9 +39,9 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, className, onEdit }) => {
   // Function to get GitHub-style color based on streak
   const getStreakColor = (streak: number) => {
     if (streak === 0) return 'bg-muted text-muted-foreground';
-    if (streak < 3) return 'bg-[#0e4429] text-white';
-    if (streak < 7) return 'bg-[#006d32] text-white';
-    if (streak < 14) return 'bg-[#26a641] text-white';
+    if (streak < 3) return 'bg-[#0e4429] text-white dark:bg-[#39d353]/30 dark:text-white';
+    if (streak < 7) return 'bg-[#006d32] text-white dark:bg-[#39d353]/50 dark:text-white';
+    if (streak < 14) return 'bg-[#26a641] text-white dark:bg-[#39d353]/75 dark:text-white';
     return 'bg-[#39d353] text-white';
   };
 
@@ -50,7 +50,7 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, className, onEdit }) => {
       className={cn(
         "overflow-hidden transition-all duration-200 hover:shadow-md rounded-xl",
         isCompleted 
-          ? "border-accent/40 bg-gradient-to-r from-accent/5 to-accent/10" 
+          ? "border-accent/40 bg-gradient-to-r from-accent/5 to-accent/10 dark:from-accent/10 dark:to-accent/5" 
           : "border-border hover:bg-gradient-to-r hover:from-background hover:to-muted/20",
         className
       )}
