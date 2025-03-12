@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Habit, HabitCompletion, Frequency, WeekDay, Difficulty } from '@/types/habit';
+import { Habit, HabitCompletion, Frequency, WeekDay } from '@/types/habit';
 import { toast } from '@/hooks/use-toast';
 import { format, isToday, parseISO, startOfDay } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
@@ -85,7 +85,6 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             reminder: habit.reminder || undefined,
             category: habit.category || 'Personal',
             archived: habit.archived || false,
-            difficulty: habit.difficulty as Difficulty || 'medium',
             completions: completionsRecord
           } as Habit;
         });
@@ -134,7 +133,6 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         custom_days: newHabit.customDays || null,
         reminder: newHabit.reminder || null,
         category: newHabit.category || 'Personal',
-        difficulty: newHabit.difficulty || 'medium',
         streak: 0,
         best_streak: 0,
         total_completions: 0
@@ -177,7 +175,6 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         reminder: data.reminder || undefined,
         category: data.category || 'Personal',
         archived: data.archived || false,
-        difficulty: data.difficulty as Difficulty || 'medium',
         completions: {}
       };
       
@@ -217,7 +214,6 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           custom_days: updatedHabit.customDays,
           reminder: updatedHabit.reminder,
           category: updatedHabit.category,
-          difficulty: updatedHabit.difficulty,
           archived: updatedHabit.archived,
           updated_at: new Date().toISOString()
         })
