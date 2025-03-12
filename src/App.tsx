@@ -12,8 +12,13 @@ import NewHabit from "./pages/NewHabit";
 import NotFound from "./pages/NotFound";
 import Docs from "./pages/Docs";
 import Auth from "./pages/Auth";
+import Community from "./pages/Community";
+import Profile from "./pages/Profile";
+import Goals from "./pages/Goals";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { AuthProvider } from "./contexts/AuthContext";
+import { HabitProvider } from "./contexts/HabitContext";
+import { GoalProvider } from "./contexts/GoalContext";
 import PrivateRoute from "./components/PrivateRoute";
 import OnboardingTutorial from "./components/OnboardingTutorial";
 
@@ -23,23 +28,30 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <ErrorBoundary>
-            <OnboardingTutorial />
-            <Routes>
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/" element={<PrivateRoute><Index /></PrivateRoute>} />
-              <Route path="/calendar" element={<PrivateRoute><Calendar /></PrivateRoute>} />
-              <Route path="/analytics" element={<PrivateRoute><Analytics /></PrivateRoute>} />
-              <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
-              <Route path="/new-habit" element={<PrivateRoute><NewHabit /></PrivateRoute>} />
-              <Route path="/docs" element={<PrivateRoute><Docs /></PrivateRoute>} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </ErrorBoundary>
-        </BrowserRouter>
+        <HabitProvider>
+          <GoalProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <ErrorBoundary>
+                <OnboardingTutorial />
+                <Routes>
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/" element={<PrivateRoute><Index /></PrivateRoute>} />
+                  <Route path="/calendar" element={<PrivateRoute><Calendar /></PrivateRoute>} />
+                  <Route path="/analytics" element={<PrivateRoute><Analytics /></PrivateRoute>} />
+                  <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
+                  <Route path="/new-habit" element={<PrivateRoute><NewHabit /></PrivateRoute>} />
+                  <Route path="/docs" element={<PrivateRoute><Docs /></PrivateRoute>} />
+                  <Route path="/community" element={<PrivateRoute><Community /></PrivateRoute>} />
+                  <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+                  <Route path="/goals" element={<PrivateRoute><Goals /></PrivateRoute>} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </ErrorBoundary>
+            </BrowserRouter>
+          </GoalProvider>
+        </HabitProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Habit, Frequency, WeekDay } from '@/types/habit';
+import { Habit, Frequency, WeekDay, Difficulty } from '@/types/habit';
 import { useHabits } from '@/contexts/HabitContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -38,7 +38,10 @@ const CATEGORIES = [
   'Productivity',
   'Personal',
   'Social',
+  'Mindfulness',
 ];
+
+const DIFFICULTIES: Difficulty[] = ['easy', 'medium', 'hard'];
 
 const COLORS = [
   { name: 'Purple', value: 'bg-purple-200 dark:bg-purple-900' },
@@ -64,6 +67,7 @@ const HabitForm: React.FC<HabitFormProps> = ({
   const [category, setCategory] = useState(habit?.category || 'Personal');
   const [reminder, setReminder] = useState(habit?.reminder || '');
   const [color, setColor] = useState(habit?.color || COLORS[0].value);
+  const [difficulty, setDifficulty] = useState<Difficulty>(habit?.difficulty || 'medium');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -89,6 +93,7 @@ const HabitForm: React.FC<HabitFormProps> = ({
         category,
         reminder: reminder || undefined,
         color,
+        difficulty,
       };
       
       console.log('Submitting habit data:', habitData);
@@ -202,6 +207,22 @@ const HabitForm: React.FC<HabitFormProps> = ({
                 </div>
               </div>
             )}
+            
+            <div className="grid gap-2">
+              <Label htmlFor="difficulty">Difficulty</Label>
+              <Select value={difficulty} onValueChange={(value) => setDifficulty(value as Difficulty)}>
+                <SelectTrigger id="difficulty" className="rounded-lg">
+                  <SelectValue placeholder="Select difficulty" />
+                </SelectTrigger>
+                <SelectContent>
+                  {DIFFICULTIES.map((diff) => (
+                    <SelectItem key={diff} value={diff} className="capitalize">
+                      {diff}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             
             <div className="grid gap-2">
               <Label htmlFor="category">Category</Label>

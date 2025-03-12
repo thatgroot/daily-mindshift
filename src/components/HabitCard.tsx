@@ -4,7 +4,7 @@ import { Habit } from '@/types/habit';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { useHabits } from '@/contexts/HabitContext';
-import { CheckCircle, Circle, MoreHorizontal, Flame, Award, Calendar, Clock } from 'lucide-react';
+import { CheckCircle, Circle, MoreHorizontal, Flame, Award, Calendar, Clock, BarChart2 } from 'lucide-react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -36,6 +36,19 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, className, onEdit }) => {
     }
   };
 
+  const getDifficultyColor = (difficulty?: string) => {
+    switch (difficulty) {
+      case 'easy':
+        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100';
+      case 'hard':
+        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100';
+    }
+  };
+
   return (
     <Card 
       className={cn(
@@ -63,7 +76,14 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, className, onEdit }) => {
           </Button>
           
           <div className="flex-1">
-            <h3 className="font-medium text-lg">{habit.name}</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="font-medium text-lg">{habit.name}</h3>
+              {habit.difficulty && (
+                <Badge variant="outline" className={cn("text-xs", getDifficultyColor(habit.difficulty))}>
+                  {habit.difficulty}
+                </Badge>
+              )}
+            </div>
             {habit.description && (
               <p className="text-muted-foreground text-sm">{habit.description}</p>
             )}
