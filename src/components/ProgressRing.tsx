@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { cn } from '@/lib/utils';
 import AnimatedCounter from './AnimatedCounter';
@@ -11,6 +10,7 @@ interface ProgressRingProps {
   className?: string;
   showPercentage?: boolean;
   label?: string;
+  progressColor?: string;
 }
 
 const ProgressRing: React.FC<ProgressRingProps> = ({
@@ -21,6 +21,7 @@ const ProgressRing: React.FC<ProgressRingProps> = ({
   className,
   showPercentage = true,
   label,
+  progressColor
 }) => {
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
@@ -30,7 +31,6 @@ const ProgressRing: React.FC<ProgressRingProps> = ({
   return (
     <div className={cn("relative flex items-center justify-center", className)}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="transform -rotate-90">
-        {/* Background circle */}
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -40,7 +40,6 @@ const ProgressRing: React.FC<ProgressRingProps> = ({
           className="stroke-secondary"
         />
         
-        {/* Progress circle */}
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -49,7 +48,10 @@ const ProgressRing: React.FC<ProgressRingProps> = ({
           strokeWidth={strokeWidth}
           strokeDasharray={circumference}
           strokeDashoffset={offset}
-          className="stroke-accent transition-all duration-1000 ease-in-out"
+          className={cn(
+            "transition-all duration-1000 ease-in-out",
+            progressColor ? progressColor : "stroke-accent"
+          )}
           strokeLinecap="round"
         />
       </svg>
