@@ -23,7 +23,8 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
-        <div className="bg-gradient-to-br from-background via-background/90 to-primary/5 dark:from-gray-950 dark:via-gray-900/95 dark:to-primary/10 min-h-screen transition-colors duration-300">
+        <div className="bg-gradient-to-br from-background via-background/95 to-primary/5 dark:from-gray-950 dark:via-gray-900/98 dark:to-primary/10 min-h-screen transition-colors duration-300">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-accent/10 via-transparent to-transparent dark:from-accent/20 pointer-events-none" aria-hidden="true"></div>
           <Toaster />
           <Sonner />
           <BrowserRouter>

@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Habit } from '@/types/habit';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
-import { GridIcon } from 'lucide-react';
+import { CalendarIcon, ChevronRightIcon, GridIcon } from 'lucide-react';
+import { Button } from './ui/button';
 
 interface HabitMatrixProps {
   habits: Habit[];
@@ -36,21 +37,24 @@ const HabitMatrix: React.FC<HabitMatrixProps> = ({ habits }) => {
     return Math.min(Math.max(strength, 0), 1);
   };
   
-  // Get color based on habit strength
+  // Get GitHub-style color based on habit strength
   const getStrengthColor = (strength: number): string => {
-    if (strength < 0.2) return 'bg-blue-100 dark:bg-blue-900';
-    if (strength < 0.4) return 'bg-blue-200 dark:bg-blue-800';
-    if (strength < 0.6) return 'bg-blue-300 dark:bg-blue-700';
-    if (strength < 0.8) return 'bg-blue-400 dark:bg-blue-600';
-    return 'bg-blue-500 dark:bg-blue-500';
+    if (strength < 0.15) return 'bg-[#ebedf0] dark:bg-[#161b22]';
+    if (strength < 0.3) return 'bg-[#9be9a8] dark:bg-[#0e4429]';
+    if (strength < 0.5) return 'bg-[#40c463] dark:bg-[#006d32]';
+    if (strength < 0.75) return 'bg-[#30a14e] dark:bg-[#26a641]';
+    return 'bg-[#216e39] dark:bg-[#39d353]';
   };
   
   return (
-    <Card className="overflow-hidden">
-      <CardHeader className="bg-primary/5 pb-2">
+    <Card className="overflow-hidden bg-gradient-to-br from-background to-background/90 shadow-md border-muted/40">
+      <CardHeader className="bg-gradient-to-r from-primary/5 via-primary/10 to-accent/5 pb-2">
         <CardTitle className="text-lg font-medium flex items-center gap-2">
-          <GridIcon className="h-5 w-5 text-accent" />
+          <CalendarIcon className="h-5 w-5 text-accent" />
           Habit Matrix
+          <Button variant="ghost" size="sm" className="ml-auto text-xs gap-1 opacity-80 hover:opacity-100">
+            View all habits <ChevronRightIcon className="h-3 w-3" />
+          </Button>
         </CardTitle>
       </CardHeader>
       <CardContent className="p-4">
@@ -73,15 +77,18 @@ const HabitMatrix: React.FC<HabitMatrixProps> = ({ habits }) => {
                       <TooltipProvider key={habit.id}>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <div className="aspect-square flex flex-col items-center justify-center rounded-md p-2 cursor-pointer hover:opacity-90 transition-opacity border border-border bg-card">
-                              <div className={`w-3 h-3 mb-1 rounded-full ${colorClass}`} />
+                            <div className="aspect-square flex flex-col items-center justify-center rounded-md p-2 cursor-pointer hover:opacity-90 transition-all border border-border bg-card hover:shadow-md">
+                              <div className={`w-full h-full ${colorClass} rounded-md mb-1.5 flex items-center justify-center`} />
                               <span className="text-xs font-medium truncate w-full text-center">{habit.name}</span>
                             </div>
                           </TooltipTrigger>
-                          <TooltipContent side="top">
+                          <TooltipContent side="top" className="bg-card/95 backdrop-blur-sm border border-border">
                             <div className="space-y-1">
                               <p className="font-medium">{habit.name}</p>
-                              <p className="text-xs">Streak: {habit.streak} days</p>
+                              <div className="flex items-center gap-1.5 text-xs">
+                                <div className={`w-3 h-3 rounded-sm ${colorClass}`}></div>
+                                <p>Streak: {habit.streak} days</p>
+                              </div>
                               <p className="text-xs">Total: {habit.totalCompletions} completions</p>
                               <p className="text-xs">Strength: {Math.round(strength * 100)}%</p>
                             </div>
@@ -94,7 +101,17 @@ const HabitMatrix: React.FC<HabitMatrixProps> = ({ habits }) => {
               </div>
             ))}
             <div className="pt-3 text-xs text-muted-foreground text-center italic border-t border-border mt-4">
-              Habit strength is based on streak length and total completions
+              <div className="flex items-center justify-center gap-2 pt-2">
+                <span>Less</span>
+                <div className="flex gap-1">
+                  <div className="w-3 h-3 rounded-sm bg-[#ebedf0] dark:bg-[#161b22]"></div>
+                  <div className="w-3 h-3 rounded-sm bg-[#9be9a8] dark:bg-[#0e4429]"></div>
+                  <div className="w-3 h-3 rounded-sm bg-[#40c463] dark:bg-[#006d32]"></div>
+                  <div className="w-3 h-3 rounded-sm bg-[#30a14e] dark:bg-[#26a641]"></div>
+                  <div className="w-3 h-3 rounded-sm bg-[#216e39] dark:bg-[#39d353]"></div>
+                </div>
+                <span>More</span>
+              </div>
             </div>
           </div>
         )}
