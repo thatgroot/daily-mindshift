@@ -12,10 +12,11 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 interface HabitCardProps {
   habit: Habit;
   className?: string;
+  style?: React.CSSProperties;
   onEdit?: () => void;
 }
 
-const HabitCard: React.FC<HabitCardProps> = ({ habit, className, onEdit }) => {
+const HabitCard: React.FC<HabitCardProps> = ({ habit, className, style, onEdit }) => {
   const { toggleCompletion, deleteHabit, isHabitCompletedForDate } = useHabits();
   const today = new Date();
   const isCompleted = isHabitCompletedForDate(habit, today);
@@ -68,14 +69,17 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, className, onEdit }) => {
   };
 
   return (
-    <div className={cn(
-      "flex items-center p-4 rounded-lg mb-2 transition-all hover:translate-x-1 border-l-4", 
-      isCompleted ? 
-        "border-l-green-500 bg-green-50/40 dark:bg-green-900/20" : 
-        "border-l-gray-200 dark:border-l-gray-700 bg-white dark:bg-gray-800",
-      getHabitColor(habit),
-      className
-    )}>
+    <div 
+      className={cn(
+        "flex items-center p-4 rounded-lg mb-2 transition-all hover:translate-x-1 border-l-4", 
+        isCompleted ? 
+          "border-l-green-500 bg-green-50/40 dark:bg-green-900/20" : 
+          "border-l-gray-200 dark:border-l-gray-700 bg-white dark:bg-gray-800",
+        getHabitColor(habit),
+        className
+      )}
+      style={style}
+    >
       <Button
         variant={isCompleted ? "ghost" : "outline"}
         size="icon"

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Layout from '@/components/Layout';
 import { HabitProvider } from '@/contexts/HabitContext';
@@ -15,7 +14,7 @@ import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { toast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { Frequency, WeekDay } from '@/types/habit';
+import { Frequency, WeekDay, DifficultyLevel } from '@/types/habit';
 
 const DAYS_OF_WEEK: WeekDay[] = [
   'monday',
@@ -77,6 +76,7 @@ const NewHabitForm = () => {
   const [duration, setDuration] = useState(10);
   const [progressType, setProgressType] = useState('binary');
   const [reminderEnabled, setReminderEnabled] = useState(false);
+  const [loading, setLoading] = useState(false);
   
   const handleWeekDayToggle = (day: WeekDay) => {
     if (weekDays.includes(day)) {
@@ -89,37 +89,42 @@ const NewHabitForm = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!name.trim()) {
-      toast({
-        title: "Error",
-        description: "Habit name is required",
-        variant: "destructive",
-      });
-      return;
-    }
+    if (loading) return;
     
-    if (frequency === 'weekly' && weekDays.length === 0) {
-      toast({
-        title: "Error",
-        description: "Please select at least one day of the week",
-        variant: "destructive",
-      });
-      return;
-    }
+    setLoading(true);
     
     const habitData = {
       name,
       description,
       frequency,
-      weekDays: frequency === 'weekly' ? weekDays : undefined,
+      weekDays,
       category,
-      reminder: reminderEnabled ? reminder : undefined,
+      reminder,
       color,
-      difficulty,
+      difficulty: difficulty as DifficultyLevel,
+      duration,
+      progressType,
     };
     
-    addHabit(habitData);
-    navigate('/');
+    addHabit(habitData)
+      .then(() => {
+        toast({
+          title: "Success",
+          description: "Habit created successfully",
+        });
+        navigate('/');
+      })
+      .catch((error) => {
+        console.error("Error creating habit:", error);
+        toast({
+          title: "Error",
+          description: "Failed to create habit. Please try again.",
+          variant: "destructive",
+        });
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
   
   return (

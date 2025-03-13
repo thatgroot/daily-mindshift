@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Layout from '@/components/Layout';
 import { HabitProvider } from '@/contexts/HabitContext';
@@ -22,6 +21,8 @@ const CalendarView = () => {
   const [selectedHabit, setSelectedHabit] = useState<string | null>(
     habits.length > 0 ? habits[0].name : null
   );
+
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   const handlePrevMonth = () => {
     setCurrentDate(subMonths(currentDate, 1));
