@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Habit, Frequency, WeekDay } from '@/types/habit';
+import { Habit, Frequency, WeekDay, DifficultyLevel, ProgressType } from '@/types/habit';
 import { useHabits } from '@/contexts/HabitContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -40,6 +40,19 @@ const CATEGORIES = [
   'Social',
 ];
 
+const DIFFICULTY_LEVELS: { label: string; value: DifficultyLevel }[] = [
+  { label: 'Easy', value: 'easy' },
+  { label: 'Medium', value: 'medium' },
+  { label: 'Hard', value: 'hard' },
+  { label: 'Very Hard', value: 'very-hard' },
+];
+
+const PROGRESS_TYPES: { label: string; value: ProgressType }[] = [
+  { label: 'Binary (Yes/No)', value: 'binary' },
+  { label: 'Scale (1-10)', value: 'scale' },
+  { label: 'Count (Number)', value: 'count' },
+];
+
 const COLORS = [
   { name: 'Purple', value: 'bg-purple-200 dark:bg-purple-900' },
   { name: 'Blue', value: 'bg-blue-200 dark:bg-blue-900' },
@@ -64,6 +77,9 @@ const HabitForm: React.FC<HabitFormProps> = ({
   const [category, setCategory] = useState(habit?.category || 'Personal');
   const [reminder, setReminder] = useState(habit?.reminder || '');
   const [color, setColor] = useState(habit?.color || COLORS[0].value);
+  const [difficulty, setDifficulty] = useState<DifficultyLevel>(habit?.difficulty || 'medium');
+  const [duration, setDuration] = useState<number>(habit?.duration || 0);
+  const [progressType, setProgressType] = useState<ProgressType>(habit?.progressType || 'binary');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -89,6 +105,9 @@ const HabitForm: React.FC<HabitFormProps> = ({
         category,
         reminder: reminder || undefined,
         color,
+        difficulty,
+        duration,
+        progressType,
       };
       
       console.log('Submitting habit data:', habitData);
@@ -213,6 +232,50 @@ const HabitForm: React.FC<HabitFormProps> = ({
                   {CATEGORIES.map((cat) => (
                     <SelectItem key={cat} value={cat}>
                       {cat}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="difficulty">Difficulty</Label>
+              <Select value={difficulty} onValueChange={(value) => setDifficulty(value as DifficultyLevel)}>
+                <SelectTrigger id="difficulty" className="rounded-lg">
+                  <SelectValue placeholder="Select difficulty" />
+                </SelectTrigger>
+                <SelectContent>
+                  {DIFFICULTY_LEVELS.map((level) => (
+                    <SelectItem key={level.value} value={level.value}>
+                      {level.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="duration">Duration (minutes)</Label>
+              <Input
+                id="duration"
+                type="number"
+                min="0"
+                value={duration}
+                onChange={(e) => setDuration(Number(e.target.value))}
+                className="rounded-lg"
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="progressType">Progress Tracking</Label>
+              <Select value={progressType} onValueChange={(value) => setProgressType(value as ProgressType)}>
+                <SelectTrigger id="progressType" className="rounded-lg">
+                  <SelectValue placeholder="Select progress tracking type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {PROGRESS_TYPES.map((type) => (
+                    <SelectItem key={type.value} value={type.value}>
+                      {type.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
