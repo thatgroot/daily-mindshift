@@ -1,6 +1,6 @@
 
 import React, { ReactNode } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import ProgressRing from './ProgressRing';
 import { ArrowUp, ArrowDown } from 'lucide-react';
@@ -14,7 +14,8 @@ interface StatsCardProps {
   ringValue?: number;
   ringMax?: number;
   className?: string;
-  color?: string;
+  colorClass?: string;
+  isStreakCounter?: boolean;
 }
 
 const StatsCard: React.FC<StatsCardProps> = ({
@@ -26,102 +27,89 @@ const StatsCard: React.FC<StatsCardProps> = ({
   ringValue,
   ringMax,
   className,
-  color,
+  colorClass,
+  isStreakCounter = false,
 }) => {
-  // Function to pick a gradient based on the title or provided color
-  const getGradient = () => {
-    if (color) return color;
+  // Function to get appropriate color class based on title or provided color
+  const getColorClass = () => {
+    if (colorClass) return colorClass;
+    
+    if (isStreakCounter) {
+      const valueNum = typeof value === 'number' ? value : 0;
+      if (valueNum >= 30) return 'streak-counter-blue';
+      if (valueNum >= 14) return 'streak-counter-green';
+      if (valueNum >= 7) return 'streak-counter-orange';
+      return 'streak-counter-pink';
+    }
     
     switch(title.toLowerCase()) {
       case "today's progress":
-        return "bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/10 hover:from-blue-50 hover:to-blue-100/80 dark:hover:from-blue-900/30 dark:hover:to-blue-800/20";
+        return 'text-blue-500';
       case "current streak":
-        return "bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/10 hover:from-amber-50 hover:to-amber-100/80 dark:hover:from-amber-900/30 dark:hover:to-amber-800/20";
+        return 'text-amber-500';
       case "longest streak":
-        return "bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/10 hover:from-purple-50 hover:to-purple-100/80 dark:hover:from-purple-900/30 dark:hover:to-purple-800/20";
+        return 'text-purple-500';
       case "total completions":
-        return "bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/10 hover:from-green-50 hover:to-green-100/80 dark:hover:from-green-900/30 dark:hover:to-green-800/20";
+        return 'text-green-500';
       default:
-        return "bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800/20 dark:to-gray-700/10 hover:from-gray-50 hover:to-gray-100/80 dark:hover:from-gray-800/30 dark:hover:to-gray-700/20";
+        return 'text-gray-700 dark:text-gray-300';
     }
-  };
-
-  // Function to pick an accent color based on the title or provided color
-  const getAccentColor = () => {
-    if (color) return color;
-    
-    switch(title.toLowerCase()) {
-      case "today's progress":
-        return "text-blue-600 dark:text-blue-400";
-      case "current streak":
-        return "text-amber-600 dark:text-amber-400";
-      case "longest streak":
-        return "text-purple-600 dark:text-purple-400";
-      case "total completions":
-        return "text-green-600 dark:text-green-400";
-      default:
-        return "text-gray-600 dark:text-gray-400";
-    }
-  };
-
-  // Function to get ring color
-  const getRingColor = () => {
-    if (ringValue !== undefined && ringMax !== undefined) {
-      const ratio = ringValue / ringMax;
-      
-      if (ratio === 0) return 'stroke-muted';
-      if (ratio < 0.25) return 'stroke-[#0e4429] dark:stroke-[#39d353]/30';
-      if (ratio < 0.5) return 'stroke-[#006d32] dark:stroke-[#39d353]/50';
-      if (ratio < 0.75) return 'stroke-[#26a641] dark:stroke-[#39d353]/75';
-      return 'stroke-[#39d353]';
-    }
-    
-    return undefined;
   };
 
   return (
     <Card className={cn(
-      "overflow-hidden transition-all duration-300 hover:shadow-md rounded-xl border-none shadow-sm", 
-      getGradient(),
+      "overflow-hidden h-full transition-all duration-300 rounded-xl border-none bg-white dark:bg-gray-800 shadow-sm hover:shadow-md", 
       className
     )}>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 pt-3 pb-3 border-b border-border/40">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        {icon && (
-          <div className={cn(
-            "text-muted-foreground bg-background/70 p-1.5 rounded-full",
-            getAccentColor()
-          )}>{icon}</div>
-        )}
-      </CardHeader>
       <CardContent className="p-4">
-        <div className="flex items-center gap-4">
-          {ringValue !== undefined && ringMax !== undefined ? (
-            <ProgressRing 
-              value={ringValue} 
-              max={ringMax} 
-              size={60} 
-              strokeWidth={5} 
-              showPercentage={false}
-              className="flex-shrink-0"
-              progressColor={getRingColor()}
-            />
-          ) : null}
-          
-          <div>
-            <div className={cn("text-2xl font-bold", getAccentColor())}>{value}</div>
-            {description && (
-              <p className="text-xs text-muted-foreground">{description}</p>
-            )}
-            {trend !== undefined && (
+        <div className="flex flex-col">
+          <div className="flex items-center mb-3">
+            {icon && (
               <div className={cn(
-                "flex items-center mt-1",
-                trend > 0 ? "text-green-500" : "text-red-500"
+                "mr-2 text-muted-foreground p-1.5 rounded-full bg-gray-100 dark:bg-gray-700",
+                getColorClass()
               )}>
-                {trend > 0 ? <ArrowUp className="h-3 w-3 mr-1" /> : <ArrowDown className="h-3 w-3 mr-1" />}
-                <span className="text-xs">{Math.abs(trend)}% from last week</span>
+                {icon}
               </div>
             )}
+            <span className="text-sm font-medium text-muted-foreground">{title}</span>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            {ringValue !== undefined && ringMax !== undefined ? (
+              <ProgressRing 
+                value={ringValue} 
+                max={ringMax} 
+                size={50} 
+                strokeWidth={4} 
+                showPercentage={false}
+                className="flex-shrink-0"
+                progressColor={getColorClass()}
+              />
+            ) : null}
+            
+            <div>
+              <div className={cn(
+                "text-2xl font-bold", 
+                getColorClass()
+              )}>
+                {value}
+              </div>
+              
+              {description && (
+                <p className="text-xs text-muted-foreground">{description}</p>
+              )}
+              
+              {trend !== undefined && (
+                <div className={cn(
+                  "flex items-center mt-1",
+                  trend > 0 ? "text-green-500" : "text-red-500"
+                )}>
+                  {trend > 0 ? <ArrowUp className="h-3 w-3 mr-1" /> : <ArrowDown className="h-3 w-3 mr-1" />}
+                  <span className="text-xs">{Math.abs(trend)}% from last week</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </CardContent>

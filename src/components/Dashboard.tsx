@@ -16,7 +16,9 @@ import {
   TrendingUp, 
   Award, 
   LayoutGrid, 
-  Loader2
+  Loader2,
+  CircleCheck,
+  BarChart4
 } from 'lucide-react';
 import { Habit } from '@/types/habit';
 import StatsCard from './StatsCard';
@@ -26,6 +28,7 @@ import ActivityHeatmap from './ActivityHeatmap';
 import HabitCorrelations from './HabitCorrelations';
 import HabitMatrix from './HabitMatrix';
 import ProgressSnapshot from './ProgressSnapshot';
+import { useAnimate } from '@/hooks/use-animate';
 
 const Dashboard: React.FC = () => {
   const { habits, getHabitsByCategory, shouldCompleteToday, getCompletionStatus, loading, error } = useHabits();
@@ -52,6 +55,25 @@ const Dashboard: React.FC = () => {
     setFormOpen(true);
   };
 
+  // Animation classes
+  const headerClasses = useAnimate({
+    initialClass: 'opacity-0 translate-y-4',
+    animateClass: 'opacity-100 translate-y-0',
+    delay: 100
+  });
+
+  const statsClasses = useAnimate({
+    initialClass: 'opacity-0 translate-y-4',
+    animateClass: 'opacity-100 translate-y-0',
+    delay: 200
+  });
+
+  const tabsClasses = useAnimate({
+    initialClass: 'opacity-0 translate-y-4',
+    animateClass: 'opacity-100 translate-y-0',
+    delay: 300
+  });
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh]">
@@ -75,19 +97,14 @@ const Dashboard: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Modern Header with Unified Layout */}
-      <div className="flex justify-between items-center gap-4 flex-col sm:flex-row">
-        <div className="flex items-center gap-4 w-full">
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Dashboard</h1>
-            <p className="text-muted-foreground mt-1 font-medium">{format(new Date(), 'EEEE, MMMM d, yyyy')}</p>
-          </div>
-          <div className="flex gap-2 items-center">
-            <ProgressSnapshot />
-            <Button onClick={openCreateForm} className="flex items-center gap-2 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90">
-              <Plus className="h-4 w-4" /> New Habit
-            </Button>
-          </div>
+      <div className={`flex justify-between items-center gap-4 transition-all duration-500 ${headerClasses}`}>
+        <div className="flex-1">
+          <h1 className="text-2xl font-bold">Today</h1>
+          <p className="text-muted-foreground text-sm mt-0.5">{format(new Date(), 'EEEE, MMMM d')}</p>
         </div>
+        <Button onClick={openCreateForm} className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4">
+          <Plus className="h-5 w-5" />
+        </Button>
       </div>
       
       {/* Today's Progress Bar */}
@@ -100,179 +117,181 @@ const Dashboard: React.FC = () => {
       </div>
       
       {/* Stats Overview - Scrollable Row */}
-      <div className="flex overflow-x-auto pb-2 gap-4 snap-x">
-        <div className="snap-center min-w-[250px] shrink-0">
+      <div className={`flex overflow-x-auto pb-2 gap-3 snap-x transition-all duration-500 ${statsClasses}`}>
+        <div className="snap-center min-w-[130px] w-[130px] shrink-0">
           <StatsCard
-            title="Today's Progress"
-            value={`${completed}/${total}`}
-            description={`${completionRate}% complete`}
-            icon={<Calendar className="h-5 w-5" />}
-            ringValue={completed}
-            ringMax={total}
+            title="Days"
+            value={completed}
+            icon={<Calendar className="h-4 w-4" />}
+            colorClass="text-blue-500"
           />
         </div>
         
-        <div className="snap-center min-w-[250px] shrink-0">
+        <div className="snap-center min-w-[130px] w-[130px] shrink-0">
           <StatsCard
-            title="Current Streak"
-            value={habits.reduce((max, habit) => Math.max(max, habit.streak), 0).toString()}
-            description="days in a row"
-            icon={<Flame className="h-5 w-5" />}
-            trend={+5}
+            title="Streak"
+            value={habits.reduce((max, habit) => Math.max(max, habit.streak), 0)}
+            icon={<Flame className="h-4 w-4" />}
+            colorClass="text-orange-500"
+            isStreakCounter={true}
           />
         </div>
         
-        <div className="snap-center min-w-[250px] shrink-0">
+        <div className="snap-center min-w-[130px] w-[130px] shrink-0">
           <StatsCard
-            title="Longest Streak"
-            value={longestStreak.toString()}
-            description="days consecutive"
-            icon={<Award className="h-5 w-5" />}
+            title="Weeks"
+            value={Math.floor(totalCompletions / 7)}
+            icon={<Calendar className="h-4 w-4" />}
+            colorClass="text-pink-500"
           />
         </div>
         
-        <div className="snap-center min-w-[250px] shrink-0">
+        <div className="snap-center min-w-[130px] w-[130px] shrink-0">
           <StatsCard
-            title="Total Completions"
-            value={<AnimatedCounter value={totalCompletions} />}
-            description="habits completed"
-            icon={<TrendingUp className="h-5 w-5" />}
-            trend={+12}
+            title="Total"
+            value={totalCompletions}
+            icon={<BarChart4 className="h-4 w-4" />}
+            colorClass="text-purple-500"
           />
         </div>
       </div>
 
       {/* Main Content */}
-      <Tabs defaultValue="today" value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="mb-4 w-full justify-start bg-background/50 backdrop-blur-sm border p-1 rounded-xl">
-          <TabsTrigger value="today" className="rounded-lg">Today's Habits</TabsTrigger>
-          <TabsTrigger value="all" className="rounded-lg">All Habits</TabsTrigger>
-          <TabsTrigger value="insights" className="rounded-lg">Insights</TabsTrigger>
-        </TabsList>
-        
-        {/* Today's Habits Tab */}
-        <TabsContent value="today" className="space-y-4 animate-in slide-in-from-left-1">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold tracking-tight flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
-              Today's Habits
-            </h2>
-            <Badge variant="outline" className="font-normal">
-              {completed}/{total} Completed
-            </Badge>
-          </div>
+      <div className={`transition-all duration-500 ${tabsClasses}`}>
+        <Tabs defaultValue="today" value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="mb-4 w-full grid grid-cols-3 h-10 bg-muted/30 rounded-lg p-1">
+            <TabsTrigger value="today" className="rounded-md text-sm">Today</TabsTrigger>
+            <TabsTrigger value="all" className="rounded-md text-sm">All Habits</TabsTrigger>
+            <TabsTrigger value="insights" className="rounded-md text-sm">Insights</TabsTrigger>
+          </TabsList>
           
-          {todayHabits.length === 0 ? (
-            <Card className="overflow-hidden border border-dashed rounded-xl">
-              <CardContent className="flex flex-col items-center justify-center py-10 text-center">
-                <div className="rounded-full bg-primary/10 p-3 mb-3">
-                  <Calendar className="h-6 w-6 text-primary" />
-                </div>
-                <p className="text-muted-foreground mb-4">No habits scheduled for today.</p>
-                <Button onClick={openCreateForm} variant="outline" className="flex items-center gap-2">
-                  <Plus className="h-4 w-4" /> Add Your First Habit
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid gap-3 animate-in fade-in-50">
-              {todayHabits.map((habit) => (
-                <HabitCard key={habit.id} habit={habit} onEdit={() => openEditForm(habit)} />
-              ))}
+          {/* Today's Habits Tab */}
+          <TabsContent value="today" className="space-y-3 animate-in fade-in-50">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Today's Habits</h2>
+              <Badge variant="outline" className="font-normal">
+                {completed}/{total}
+              </Badge>
             </div>
-          )}
-        </TabsContent>
-        
-        {/* All Habits Tab */}
-        <TabsContent value="all" className="space-y-4 animate-in slide-in-from-right-1">
-          <div>
-            <h2 className="text-xl font-semibold tracking-tight flex items-center gap-2 mb-4">
-              <LayoutGrid className="h-5 w-5" />
-              All Habits
+            
+            {todayHabits.length === 0 ? (
+              <Card className="overflow-hidden border border-dashed rounded-xl">
+                <CardContent className="flex flex-col items-center justify-center py-10 text-center">
+                  <div className="rounded-full bg-primary/10 p-3 mb-3">
+                    <Calendar className="h-6 w-6 text-primary" />
+                  </div>
+                  <p className="text-muted-foreground mb-4">No habits scheduled for today.</p>
+                  <Button onClick={openCreateForm} variant="outline" className="flex items-center gap-2">
+                    <Plus className="h-4 w-4" /> Add Your First Habit
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div>
+                {todayHabits.map((habit, index) => (
+                  <HabitCard 
+                    key={habit.id} 
+                    habit={habit} 
+                    onEdit={() => openEditForm(habit)}
+                    className={`transition-all duration-500 animate-in`}
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+          
+          {/* All Habits Tab */}
+          <TabsContent value="all" className="space-y-4 animate-in fade-in-50">
+            <div>
+              <h2 className="text-lg font-semibold flex items-center gap-2 mb-4">
+                <LayoutGrid className="h-5 w-5" />
+                All Habits
+              </h2>
+              
+              <Tabs defaultValue="all" className="w-full">
+                <TabsList className="mb-4 inline-flex bg-muted/30 p-1 rounded-lg">
+                  <TabsTrigger value="all" className="rounded-md text-xs">All</TabsTrigger>
+                  {Object.keys(categorizedHabits).map((category) => (
+                    <TabsTrigger key={category} value={category} className="rounded-md text-xs">
+                      {category}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+                
+                <TabsContent value="all" className="space-y-4">
+                  {habits.length === 0 ? (
+                    <Card className="overflow-hidden border border-dashed rounded-xl">
+                      <CardContent className="flex flex-col items-center justify-center py-10 text-center">
+                        <div className="rounded-full bg-primary/10 p-3 mb-3">
+                          <LayoutGrid className="h-6 w-6 text-primary" />
+                        </div>
+                        <p className="text-muted-foreground mb-4">You haven't created any habits yet.</p>
+                        <Button onClick={openCreateForm} variant="outline" className="flex items-center gap-2">
+                          <Plus className="h-4 w-4" /> Add Your First Habit
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    <div>
+                      {habits.map((habit) => (
+                        <HabitCard key={habit.id} habit={habit} onEdit={() => openEditForm(habit)} />
+                      ))}
+                    </div>
+                  )}
+                </TabsContent>
+                
+                {Object.entries(categorizedHabits).map(([category, categoryHabits]) => (
+                  <TabsContent key={category} value={category} className="space-y-4">
+                    <div>
+                      {categoryHabits.map((habit) => (
+                        <HabitCard key={habit.id} habit={habit} onEdit={() => openEditForm(habit)} />
+                      ))}
+                    </div>
+                  </TabsContent>
+                ))}
+              </Tabs>
+            </div>
+          </TabsContent>
+          
+          {/* Insights Tab */}
+          <TabsContent value="insights" className="space-y-6 animate-in fade-in-50">
+            <h2 className="text-lg font-semibold flex items-center gap-2 mb-2">
+              <TrendingUp className="h-5 w-5" />
+              Data Insights
             </h2>
             
-            <Tabs defaultValue="all" className="w-full">
-              <TabsList className="mb-4 inline-flex bg-background/50 backdrop-blur-sm border p-1 rounded-xl">
-                <TabsTrigger value="all" className="rounded-lg">All</TabsTrigger>
-                {Object.keys(categorizedHabits).map((category) => (
-                  <TabsTrigger key={category} value={category} className="rounded-lg">
-                    {category}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+            <div className="grid grid-cols-1 gap-4">
+              <Card className="overflow-hidden rounded-xl hover:shadow-md transition-all">
+                <CardHeader className="pb-2 border-b">
+                  <CardTitle className="text-base font-medium">Activity Overview</CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <ActivityHeatmap habits={habits} />
+                </CardContent>
+              </Card>
               
-              <TabsContent value="all" className="space-y-4">
-                {habits.length === 0 ? (
-                  <Card className="overflow-hidden border border-dashed rounded-xl">
-                    <CardContent className="flex flex-col items-center justify-center py-10 text-center">
-                      <div className="rounded-full bg-primary/10 p-3 mb-3">
-                        <LayoutGrid className="h-6 w-6 text-primary" />
-                      </div>
-                      <p className="text-muted-foreground mb-4">You haven't created any habits yet.</p>
-                      <Button onClick={openCreateForm} variant="outline" className="flex items-center gap-2">
-                        <Plus className="h-4 w-4" /> Add Your First Habit
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ) : (
-                  <div className="grid gap-3 animate-in fade-in-50">
-                    {habits.map((habit) => (
-                      <HabitCard key={habit.id} habit={habit} onEdit={() => openEditForm(habit)} />
-                    ))}
-                  </div>
-                )}
-              </TabsContent>
+              <Card className="overflow-hidden rounded-xl hover:shadow-md transition-all">
+                <CardHeader className="pb-2 border-b">
+                  <CardTitle className="text-base font-medium">Habit Correlations</CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <HabitCorrelations habits={habits} />
+                </CardContent>
+              </Card>
               
-              {Object.entries(categorizedHabits).map(([category, categoryHabits]) => (
-                <TabsContent key={category} value={category} className="space-y-4">
-                  <div className="grid gap-3 animate-in fade-in-50">
-                    {categoryHabits.map((habit) => (
-                      <HabitCard key={habit.id} habit={habit} onEdit={() => openEditForm(habit)} />
-                    ))}
-                  </div>
-                </TabsContent>
-              ))}
-            </Tabs>
-          </div>
-        </TabsContent>
-        
-        {/* Insights Tab */}
-        <TabsContent value="insights" className="space-y-6 animate-in slide-in-from-right-1">
-          <h2 className="text-xl font-semibold tracking-tight flex items-center gap-2 mb-2">
-            <TrendingUp className="h-5 w-5" />
-            Data Insights
-          </h2>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <Card className="lg:col-span-3 overflow-hidden rounded-xl hover:shadow-md transition-all">
-              <CardHeader className="pb-2 border-b">
-                <CardTitle className="text-lg font-medium">Activity Overview</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-4">
-                <ActivityHeatmap habits={habits} />
-              </CardContent>
-            </Card>
-            
-            <Card className="lg:col-span-2 overflow-hidden rounded-xl hover:shadow-md transition-all">
-              <CardHeader className="pb-2 border-b">
-                <CardTitle className="text-lg font-medium">Habit Correlations</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-4">
-                <HabitCorrelations habits={habits} />
-              </CardContent>
-            </Card>
-            
-            <Card className="overflow-hidden rounded-xl hover:shadow-md transition-all">
-              <CardHeader className="pb-2 border-b">
-                <CardTitle className="text-lg font-medium">Habit Matrix</CardTitle>
-              </CardHeader>
-              <CardContent className="pt-4">
-                <HabitMatrix habits={habits} />
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-      </Tabs>
+              <Card className="overflow-hidden rounded-xl hover:shadow-md transition-all">
+                <CardHeader className="pb-2 border-b">
+                  <CardTitle className="text-base font-medium">Habit Matrix</CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <HabitMatrix habits={habits} />
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
       
       {/* Habit Form Dialog */}
       <HabitForm 
@@ -280,14 +299,6 @@ const Dashboard: React.FC = () => {
         onOpenChange={setFormOpen} 
         habit={selectedHabit} 
       />
-      
-      {/* Inspirational Quote Footer */}
-      <div className="mt-8 pt-6 border-t text-center text-sm text-muted-foreground">
-        <p className="italic">
-          "Success is the sum of small efforts, repeated day in and day out."
-        </p>
-        <p className="mt-1 font-medium">— Robert Collier</p>
-      </div>
     </div>
   );
 };

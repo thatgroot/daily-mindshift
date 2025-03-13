@@ -5,7 +5,6 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { useHabits } from '@/contexts/HabitContext';
 import { CheckCircle, Circle, MoreHorizontal, Flame, Award, Calendar, Clock } from 'lucide-react';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -21,121 +20,133 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, className, onEdit }) => {
   const today = new Date();
   const isCompleted = isHabitCompletedForDate(habit, today);
 
-  const getHabitFrequencyText = (habit: Habit) => {
-    switch (habit.frequency) {
-      case 'daily':
-        return 'Every day';
-      case 'weekly':
-        return habit.weekDays?.map(day => day.charAt(0).toUpperCase() + day.slice(1)).join(', ') || 'Weekly';
-      case 'monthly':
-        return habit.monthDays?.map(day => day.toString()).join(', ') || 'Monthly';
-      case 'custom':
-        return 'Custom schedule';
-      default:
-        return 'Unknown frequency';
+  // Determine background color based on habit category or name
+  const getHabitColor = (habit: Habit) => {
+    const nameToLower = habit.name.toLowerCase();
+    
+    if (habit.color) return habit.color;
+    
+    if (nameToLower.includes('meditate') || nameToLower.includes('mindfulness')) {
+      return 'habit-type-blue';
+    } else if (nameToLower.includes('workout') || nameToLower.includes('exercise') || nameToLower.includes('gym')) {
+      return 'habit-type-pink';
+    } else if (nameToLower.includes('read') || nameToLower.includes('study') || nameToLower.includes('learn')) {
+      return 'habit-type-green';
+    } else if (nameToLower.includes('yoga') || nameToLower.includes('stretch')) {
+      return 'habit-type-orange';
+    } else if (nameToLower.includes('run') || nameToLower.includes('jog')) {
+      return 'habit-type-purple';
+    }
+    
+    // Default colors by category
+    switch (habit.category?.toLowerCase()) {
+      case 'health': return 'habit-type-green';
+      case 'fitness': return 'habit-type-pink';
+      case 'mindfulness': return 'habit-type-blue';
+      case 'learning': return 'habit-type-green';
+      case 'productivity': return 'habit-type-orange';
+      default: return 'bg-white dark:bg-gray-800';
     }
   };
 
-  // Function to get GitHub-style color based on streak
-  const getStreakColor = (streak: number) => {
-    if (streak === 0) return 'bg-muted text-muted-foreground';
-    if (streak < 3) return 'bg-[#0e4429] text-white dark:bg-[#39d353]/30 dark:text-white';
-    if (streak < 7) return 'bg-[#006d32] text-white dark:bg-[#39d353]/50 dark:text-white';
-    if (streak < 14) return 'bg-[#26a641] text-white dark:bg-[#39d353]/75 dark:text-white';
-    return 'bg-[#39d353] text-white';
+  // Get text for streak or completion counter
+  const getStreakText = (habit: Habit) => {
+    if (habit.streak >= 7) {
+      return `${habit.streak} days`;
+    } else if (habit.streak > 0) {
+      return `${habit.streak} days`;
+    } 
+    return '';
+  };
+
+  // Get the streak icon class
+  const getStreakIconClass = (habit: Habit) => {
+    if (habit.streak >= 30) return 'text-blue-500';
+    if (habit.streak >= 14) return 'text-green-500';
+    if (habit.streak >= 7) return 'text-orange-500';
+    return 'text-amber-500';
   };
 
   return (
-    <Card 
-      className={cn(
-        "overflow-hidden transition-all duration-200 hover:shadow-md rounded-xl",
-        isCompleted 
-          ? "border-accent/40 bg-gradient-to-r from-accent/5 to-accent/10 dark:from-accent/10 dark:to-accent/5" 
-          : "border-border hover:bg-gradient-to-r hover:from-background hover:to-muted/20",
-        className
-      )}
-    >
-      <CardContent className="p-0">
-        <div className="flex items-center p-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => toggleCompletion(habit.id, today)}
-            className={cn(
-              "rounded-full mr-3 transition-all duration-300",
-              isCompleted 
-                ? "text-accent hover:text-accent/80 hover:bg-accent/10" 
-                : "text-muted-foreground hover:text-foreground hover:bg-muted/20"
-            )}
-          >
-            {isCompleted ? (
-              <CheckCircle className="h-7 w-7 animate-scale-in" />
-            ) : (
-              <Circle className="h-7 w-7" />
-            )}
-          </Button>
-          
-          <div className="flex-1">
-            <h3 className="font-medium text-lg">{habit.name}</h3>
-            {habit.description && (
-              <p className="text-muted-foreground text-sm">{habit.description}</p>
-            )}
-          </div>
-          
-          <div className={cn(
-            "w-3 h-3 rounded-full mr-4",
-            habit.color || "bg-accent"
-          )}></div>
-          
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <MoreHorizontal className="h-5 w-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem onClick={onEdit}>Edit</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => deleteHabit(habit.id)} className="text-destructive">
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </CardContent>
-      
-      <CardFooter className="flex p-4 pt-0 gap-3 justify-between bg-gradient-to-r from-secondary/30 to-secondary/10">
-        <div className="flex gap-2">
+    <div className={cn(
+      "flex items-center p-4 rounded-lg mb-2 transition-all hover:translate-x-1 border-l-4", 
+      isCompleted ? 
+        "border-l-green-500 bg-green-50/40 dark:bg-green-900/20" : 
+        "border-l-gray-200 dark:border-l-gray-700 bg-white dark:bg-gray-800",
+      getHabitColor(habit),
+      className
+    )}>
+      <Button
+        variant={isCompleted ? "ghost" : "outline"}
+        size="icon"
+        onClick={() => toggleCompletion(habit.id, today)}
+        className={cn(
+          "rounded-full h-10 w-10 flex items-center justify-center mr-4 transition-all", 
+          isCompleted ? 
+            "bg-green-500 text-white hover:bg-green-600 hover:text-white" : 
+            "bg-white text-gray-400 hover:text-gray-600 dark:bg-gray-800"
+        )}
+      >
+        {isCompleted ? (
+          <CheckCircle className="h-6 w-6" />
+        ) : (
+          <Circle className="h-6 w-6" />
+        )}
+      </Button>
+
+      <div className="flex-1">
+        <div className="flex items-center">
+          <h3 className="font-semibold text-base">{habit.name}</h3>
           {habit.streak > 0 && (
-            <Badge variant="outline" className={cn(
-              "flex items-center gap-1.5", 
-              getStreakColor(habit.streak)
-            )}>
-              <Flame className="h-3.5 w-3.5" />
-              <span>{habit.streak} day streak</span>
-            </Badge>
-          )}
-          {habit.bestStreak > 0 && habit.bestStreak !== habit.streak && (
-            <Badge variant="outline" className="flex items-center gap-1.5 bg-background/80">
-              <Award className="h-3.5 w-3.5" />
-              <span>Best: {habit.bestStreak}</span>
+            <Badge 
+              variant="outline" 
+              className={cn(
+                "ml-2 flex items-center gap-1 border-none px-2 py-1", 
+                getStreakIconClass(habit)
+              )}
+            >
+              <Flame className="h-3 w-3" />
+              <span className="text-xs">{getStreakText(habit)}</span>
             </Badge>
           )}
         </div>
         
-        <div className="flex items-center text-xs text-muted-foreground gap-3">
-          <div className="flex items-center gap-1">
-            <Calendar className="h-3.5 w-3.5" />
-            <span>{getHabitFrequencyText(habit)}</span>
-          </div>
+        {habit.description && (
+          <p className="text-muted-foreground text-xs mt-1">{habit.description}</p>
+        )}
+        
+        <div className="flex items-center mt-1 text-xs text-muted-foreground">
+          {habit.frequency && (
+            <span className="flex items-center mr-3">
+              <Calendar className="h-3 w-3 mr-1" />
+              {habit.frequency}
+            </span>
+          )}
           {habit.reminder && (
-            <div className="flex items-center gap-1">
-              <Clock className="h-3.5 w-3.5" />
-              <span>{habit.reminder}</span>
-            </div>
+            <span className="flex items-center">
+              <Clock className="h-3 w-3 mr-1" />
+              {habit.reminder}
+            </span>
           )}
         </div>
-      </CardFooter>
-    </Card>
+      </div>
+
+      <div className="flex items-center">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="rounded-full h-8 w-8">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-40">
+            <DropdownMenuItem onClick={onEdit}>Edit</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => deleteHabit(habit.id)} className="text-destructive">
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </div>
   );
 };
 

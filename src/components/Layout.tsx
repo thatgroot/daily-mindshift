@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ModeToggle } from './ModeToggle';
-import { Bell, Menu, Calendar, PieChart, Settings, Home } from 'lucide-react';
+import { Bell, Menu, Calendar, PieChart, Settings, Home, BarChart3 } from 'lucide-react';
 import { Button } from './ui/button';
 import Sidebar from './Sidebar';
 import NotificationCenter from './NotificationCenter';
@@ -21,9 +21,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const closeSidebar = () => setSidebarOpen(false);
   
   const navigationItems = [
-    { icon: Home, label: 'Dashboard', path: '/' },
+    { icon: Home, label: 'Today', path: '/' },
     { icon: Calendar, label: 'Calendar', path: '/calendar' },
-    { icon: PieChart, label: 'Analytics', path: '/analytics' },
+    { icon: BarChart3, label: 'Analytics', path: '/analytics' },
     { icon: Settings, label: 'Settings', path: '/settings' },
   ];
   
@@ -40,7 +40,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             >
               <Menu className="h-5 w-5" />
             </Button>
-            <span className="font-bold text-xl tracking-tight bg-gradient-to-r from-primary via-accent to-purple-500 bg-clip-text text-transparent">Daily Routines</span>
+            <span className="font-bold text-xl tracking-tight bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent">EVO<span className="text-black dark:text-white">DAY</span></span>
           </div>
           
           <div className="flex-1 flex items-center justify-end space-x-2">
@@ -69,7 +69,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 to={item.path}
                 className={`flex flex-col items-center py-1 px-3 text-xs ${
                   location.pathname === item.path 
-                    ? 'text-primary' 
+                    ? 'text-blue-500 font-medium' 
                     : 'text-muted-foreground'
                 }`}
               >
