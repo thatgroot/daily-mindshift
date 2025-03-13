@@ -2,10 +2,11 @@
 import React, { useState } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ModeToggle } from './ModeToggle';
-import { Menu } from 'lucide-react';
+import { Bell, Menu, Calendar, PieChart, Settings, Home } from 'lucide-react';
 import { Button } from './ui/button';
 import Sidebar from './Sidebar';
 import NotificationCenter from './NotificationCenter';
+import { Link, useLocation } from 'react-router-dom';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -14,9 +15,17 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const isMobile = useIsMobile();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
   
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const closeSidebar = () => setSidebarOpen(false);
+  
+  const navigationItems = [
+    { icon: Home, label: 'Dashboard', path: '/' },
+    { icon: Calendar, label: 'Calendar', path: '/calendar' },
+    { icon: PieChart, label: 'Analytics', path: '/analytics' },
+    { icon: Settings, label: 'Settings', path: '/settings' },
+  ];
   
   return (
     <div className="min-h-screen flex flex-col bg-background dark:bg-gradient-to-br dark:from-gray-950 dark:via-gray-900 dark:to-gray-850 animate-fade-in">
@@ -49,6 +58,28 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           {children}
         </div>
       </main>
+      
+      {/* Fixed Bottom Navigation for Mobile */}
+      {isMobile && (
+        <nav className="fixed bottom-0 left-0 right-0 border-t bg-background/95 backdrop-blur-md z-50 py-1 dark:bg-gray-900/80 dark:border-gray-800/70">
+          <div className="flex justify-around items-center">
+            {navigationItems.map((item) => (
+              <Link 
+                key={item.path} 
+                to={item.path}
+                className={`flex flex-col items-center py-1 px-3 text-xs ${
+                  location.pathname === item.path 
+                    ? 'text-primary' 
+                    : 'text-muted-foreground'
+                }`}
+              >
+                <item.icon className="h-5 w-5 mb-1" />
+                <span>{item.label}</span>
+              </Link>
+            ))}
+          </div>
+        </nav>
+      )}
     </div>
   );
 };
