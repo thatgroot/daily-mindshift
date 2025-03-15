@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -214,12 +213,12 @@ const mockExpertTips = {
     { id: 'e2', name: 'Mark Williams', tip: 'Try meditating at the same time each day to build a consistent habit.', role: 'Habit Formation Expert' }
   ],
   'm2': [
-    { id: 'e3', name: 'Dr. Emily Chen', tip: 'If you miss a day, don't give up. Just continue the next day without guilt.', role: 'Psychologist' },
+    { id: 'e3', name: 'Dr. Emily Chen', tip: 'If you miss a day, don\'t give up. Just continue the next day without guilt.', role: 'Psychologist' },
     { id: 'e4', name: 'Alex Thompson', tip: 'Experiment with different meditation styles to find what works for you.', role: 'Meditation Instructor' }
   ],
   'm3': [
     { id: 'e5', name: 'Dr. Michael Brown', tip: 'By this point, focus on deepening your practice rather than just extending time.', role: 'Meditation Researcher' },
-    { id: 'e6', name: 'Lisa Patel', tip: 'Consider joining a meditation group to maintain motivation through month's end.', role: 'Community Facilitator' }
+    { id: 'e6', name: 'Lisa Patel', tip: 'Consider joining a meditation group to maintain motivation through month\'s end.', role: 'Community Facilitator' }
   ]
 };
 
