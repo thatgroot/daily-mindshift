@@ -1,18 +1,15 @@
-
 import React from 'react';
 import Layout from '@/components/Layout';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, User, BarChart, Settings, Plus, Check, Repeat, TrendingUp, ArrowRight, LayoutGrid } from 'lucide-react';
+import { Calendar, User, BarChart, Settings, Plus, Check, Repeat, TrendingUp } from 'lucide-react';
 import ProgressRing from '@/components/ProgressRing';
 import HabitCard from '@/components/HabitCard';
 import StatsCard from '@/components/StatsCard';
 import { Habit } from '@/types/habit';
 import { HabitProvider } from '@/contexts/HabitContext';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 // Sample data for demos
 const sampleHabit: Habit = {
@@ -272,145 +269,6 @@ const DocsPage: React.FC = () => {
                   }} 
                   onEdit={() => {}} 
                 />
-              </div>
-            </div>
-
-            {/* New UI Components Section */}
-            <h2 className="flex items-center gap-2 mt-8 mb-4">
-              <span className="p-2 bg-primary/10 rounded-full"><LayoutGrid className="h-5 w-5 text-primary" /></span>
-              UI Components
-            </h2>
-            
-            <p>
-              Daily Routines is built with a comprehensive set of UI components that provide a consistent 
-              and accessible user experience.
-            </p>
-
-            <div className="mt-6 mb-8 p-6 border rounded-xl bg-card/50">
-              <h3 className="text-xl font-medium mb-4">Buttons &amp; Controls</h3>
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <h4 className="font-medium text-sm">Button Variants</h4>
-                  <div className="flex flex-wrap gap-3">
-                    <Button>Default</Button>
-                    <Button variant="secondary">Secondary</Button>
-                    <Button variant="outline">Outline</Button>
-                    <Button variant="destructive">Destructive</Button>
-                    <Button variant="ghost">Ghost</Button>
-                    <Button variant="link">Link</Button>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <h4 className="font-medium text-sm">Button Sizes</h4>
-                  <div className="flex flex-wrap items-center gap-3">
-                    <Button size="sm">Small</Button>
-                    <Button>Default</Button>
-                    <Button size="lg">Large</Button>
-                    <Button size="icon" variant="outline"><Plus className="h-4 w-4" /></Button>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <h4 className="font-medium text-sm">Button with Icon</h4>
-                  <div className="flex flex-wrap gap-3">
-                    <Button>
-                      Proceed <ArrowRight className="ml-1 h-4 w-4" />
-                    </Button>
-                    <Button variant="outline">
-                      <Calendar className="mr-1.5 h-4 w-4" /> Schedule
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-6 mb-8 p-6 border rounded-xl bg-card/50">
-              <h3 className="text-xl font-medium mb-4">Badges &amp; Indicators</h3>
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <h4 className="font-medium text-sm">Badge Variants</h4>
-                  <div className="flex flex-wrap gap-3">
-                    <Badge>Default</Badge>
-                    <Badge variant="secondary">Secondary</Badge>
-                    <Badge variant="outline">Outline</Badge>
-                    <Badge variant="destructive">Destructive</Badge>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-6 mb-8 p-6 border rounded-xl bg-card/50">
-              <h3 className="text-xl font-medium mb-4">Cards &amp; Containers</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Card Title</CardTitle>
-                    <CardDescription>Card description with supporting text below</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p>This is the main content area of the card component.</p>
-                  </CardContent>
-                  <CardFooter className="flex justify-between">
-                    <Button variant="ghost">Cancel</Button>
-                    <Button>Submit</Button>
-                  </CardFooter>
-                </Card>
-                
-                <Card>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Quick Stats</CardTitle>
-                    <BarChart className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">85%</div>
-                    <p className="text-xs text-muted-foreground">
-                      +20% from last month
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-
-            <div className="mt-6 mb-8 p-6 border rounded-xl bg-card/50">
-              <h3 className="text-xl font-medium mb-4">Alerts &amp; Notifications</h3>
-              <div className="space-y-4">
-                <Alert>
-                  <Check className="h-4 w-4" />
-                  <AlertTitle>Success</AlertTitle>
-                  <AlertDescription>
-                    Your habit streak has been saved successfully.
-                  </AlertDescription>
-                </Alert>
-                
-                <Alert variant="destructive">
-                  <AlertTitle>Warning</AlertTitle>
-                  <AlertDescription>
-                    You're about to break your current streak.
-                  </AlertDescription>
-                </Alert>
-              </div>
-            </div>
-
-            <div className="mt-6 mb-8 p-6 border rounded-xl bg-card/50">
-              <h3 className="text-xl font-medium mb-4">User Interface Elements</h3>
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <h4 className="font-medium text-sm">Avatar</h4>
-                  <div className="flex items-center gap-4">
-                    <Avatar>
-                      <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-                      <AvatarFallback>CN</AvatarFallback>
-                    </Avatar>
-                    <Avatar>
-                      <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-                      <AvatarFallback>JD</AvatarFallback>
-                    </Avatar>
-                    <Avatar>
-                      <AvatarFallback>AB</AvatarFallback>
-                    </Avatar>
-                  </div>
-                </div>
               </div>
             </div>
 

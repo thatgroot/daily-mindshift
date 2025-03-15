@@ -5,7 +5,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 0 0% 98%;
     --foreground: 240 10% 15%;
 
     --card: 0 0% 100%;
@@ -14,7 +14,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 10%;
 
-    --primary: 217 91% 60%;
+    --primary: 224 64% 33%;
     --primary-foreground: 0 0% 98%;
 
     --secondary: 220 14% 96%;
@@ -23,7 +23,7 @@
     --muted: 240 5% 96%;
     --muted-foreground: 240 4% 46%;
 
-    --accent: 263 70% 61%;
+    --accent: 265 89% 62%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
@@ -31,9 +31,9 @@
 
     --border: 240 6% 90%;
     --input: 240 6% 90%;
-    --ring: 217 91% 60%;
+    --ring: 224 64% 33%;
 
-    --radius: 1rem;
+    --radius: 1.5rem;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5% 26%;
@@ -55,7 +55,7 @@
     --popover: 240 6% 8%;
     --popover-foreground: 0 0% 95%;
 
-    --primary: 217 91% 60%;
+    --primary: 221 83% 53%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 240 4% 12%;
@@ -64,7 +64,7 @@
     --muted: 240 4% 16%;
     --muted-foreground: 240 5% 65%;
 
-    --accent: 263 70% 61%;
+    --accent: 265 89% 62%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
@@ -72,7 +72,7 @@
 
     --border: 240 4% 20%;
     --input: 240 4% 20%;
-    --ring: 217 91% 60%;
+    --ring: 221 83% 53%;
 
     --sidebar-background: 240 6% 8%;
     --sidebar-foreground: 240 5% 96%;
@@ -94,30 +94,6 @@
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "ss01", "ss03", "cv01", "cv03";
   }
-}
-
-/* Custom color scales for habit completion */
-.habit-completion-scale-1 { @apply bg-blue-100 dark:bg-blue-900; }
-.habit-completion-scale-2 { @apply bg-blue-200 dark:bg-blue-800; }
-.habit-completion-scale-3 { @apply bg-blue-300 dark:bg-blue-700; }
-.habit-completion-scale-4 { @apply bg-blue-400 dark:bg-blue-600; }
-.habit-completion-scale-5 { @apply bg-blue-500 dark:bg-blue-500; }
-
-/* Color scales for different habit types */
-.habit-type-blue { 
-  @apply bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-800;
-}
-.habit-type-pink { 
-  @apply bg-pink-100 text-pink-700 border-pink-200 dark:bg-pink-900 dark:text-pink-300 dark:border-pink-800;
-}
-.habit-type-orange { 
-  @apply bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900 dark:text-orange-300 dark:border-orange-800;
-}
-.habit-type-green { 
-  @apply bg-green-100 text-green-700 border-green-200 dark:bg-green-900 dark:text-green-300 dark:border-green-800;
-}
-.habit-type-purple { 
-  @apply bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900 dark:text-purple-300 dark:border-purple-800;
 }
 
 @layer utilities {
@@ -194,38 +170,4 @@
   transform: scale(0, 0);
   opacity: .3;
   transition: 0s;
-}
-
-/* Calendar Day Styles */
-.calendar-day {
-  @apply w-8 h-8 flex items-center justify-center rounded-full transition-colors;
-}
-
-.calendar-day-active {
-  @apply bg-blue-500 text-white;
-}
-
-.calendar-day-today {
-  @apply border-2 border-blue-500 font-bold;
-}
-
-.calendar-day-completed {
-  @apply bg-blue-500 text-white;
-}
-
-/* Streak counter colors */
-.streak-counter-blue {
-  @apply text-blue-500;
-}
-
-.streak-counter-orange {
-  @apply text-orange-500;
-}
-
-.streak-counter-pink {
-  @apply text-pink-500;
-}
-
-.streak-counter-green {
-  @apply text-green-500;
 }

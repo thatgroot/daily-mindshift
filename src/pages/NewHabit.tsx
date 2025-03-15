@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Layout from '@/components/Layout';
 import { HabitProvider } from '@/contexts/HabitContext';
@@ -10,11 +11,9 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Switch } from '@/components/ui/switch';
-import { Slider } from '@/components/ui/slider';
 import { toast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { Frequency, WeekDay, DifficultyLevel } from '@/types/habit';
+import { Frequency, WeekDay } from '@/types/habit';
 
 const DAYS_OF_WEEK: WeekDay[] = [
   'monday',
@@ -35,19 +34,6 @@ const CATEGORIES = [
   'Productivity',
   'Personal',
   'Social',
-];
-
-const DIFFICULTY_LEVELS = [
-  { value: 'easy', label: 'Easy' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'hard', label: 'Hard' },
-  { value: 'very-hard', label: 'Very Hard' },
-];
-
-const PROGRESS_TYPES = [
-  { value: 'binary', label: 'Binary (Done/Not Done)' },
-  { value: 'scale', label: 'Scale (0-100%)' },
-  { value: 'count', label: 'Count (Number)' },
 ];
 
 const COLORS = [
@@ -72,11 +58,6 @@ const NewHabitForm = () => {
   const [category, setCategory] = useState('Personal');
   const [reminder, setReminder] = useState('');
   const [color, setColor] = useState(COLORS[0].value);
-  const [difficulty, setDifficulty] = useState('medium');
-  const [duration, setDuration] = useState(10);
-  const [progressType, setProgressType] = useState('binary');
-  const [reminderEnabled, setReminderEnabled] = useState(false);
-  const [loading, setLoading] = useState(false);
   
   const handleWeekDayToggle = (day: WeekDay) => {
     if (weekDays.includes(day)) {
@@ -89,42 +70,36 @@ const NewHabitForm = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (loading) return;
+    if (!name.trim()) {
+      toast({
+        title: "Error",
+        description: "Habit name is required",
+        variant: "destructive",
+      });
+      return;
+    }
     
-    setLoading(true);
+    if (frequency === 'weekly' && weekDays.length === 0) {
+      toast({
+        title: "Error",
+        description: "Please select at least one day of the week",
+        variant: "destructive",
+      });
+      return;
+    }
     
     const habitData = {
       name,
       description,
       frequency,
-      weekDays,
+      weekDays: frequency === 'weekly' ? weekDays : undefined,
       category,
-      reminder,
+      reminder: reminder || undefined,
       color,
-      difficulty: difficulty as DifficultyLevel,
-      duration,
-      progressType,
     };
     
-    addHabit(habitData)
-      .then(() => {
-        toast({
-          title: "Success",
-          description: "Habit created successfully",
-        });
-        navigate('/');
-      })
-      .catch((error) => {
-        console.error("Error creating habit:", error);
-        toast({
-          title: "Error",
-          description: "Failed to create habit. Please try again.",
-          variant: "destructive",
-        });
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    addHabit(habitData);
+    navigate('/');
   };
   
   return (
@@ -136,15 +111,15 @@ const NewHabitForm = () => {
         </div>
       </div>
       
-      <Card className="max-w-3xl mx-auto bg-card/70 backdrop-blur-sm border-muted/40">
+      <Card className="max-w-2xl mx-auto">
         <form onSubmit={handleSubmit}>
-          <CardHeader className="bg-gradient-to-r from-primary/5 via-primary/10 to-accent/5">
+          <CardHeader>
             <CardTitle>Habit Details</CardTitle>
             <CardDescription>
               Fill in the details of the habit you want to build
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6 p-6">
+          <CardContent className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="name">Habit Name</Label>
               <Input
@@ -155,7 +130,6 @@ const NewHabitForm = () => {
                 className="rounded-lg"
                 required
               />
-              <p className="text-xs text-muted-foreground mt-1">A clear, specific name for your habit</p>
             </div>
             
             <div className="space-y-2">
@@ -164,74 +138,10 @@ const NewHabitForm = () => {
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="e.g., 10 minutes of mindfulness meditation after waking up"
+                placeholder="Describe your habit..."
                 rows={3}
                 className="rounded-lg"
               />
-              <p className="text-xs text-muted-foreground mt-1">Details about how and when you'll perform this habit</p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
-                <Select value={category} onValueChange={setCategory}>
-                  <SelectTrigger id="category" className="rounded-lg">
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CATEGORIES.map((cat) => (
-                      <SelectItem key={cat} value={cat}>
-                        {cat}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="difficulty">Difficulty</Label>
-                <Select value={difficulty} onValueChange={setDifficulty}>
-                  <SelectTrigger id="difficulty" className="rounded-lg">
-                    <SelectValue placeholder="Select difficulty" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {DIFFICULTY_LEVELS.map((level) => (
-                      <SelectItem key={level.value} value={level.value}>
-                        {level.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
-            <div className="space-y-3">
-              <Label>Duration (minutes): {duration}</Label>
-              <Slider 
-                defaultValue={[10]} 
-                max={120} 
-                step={1} 
-                value={[duration]}
-                onValueChange={(value) => setDuration(value[0])}
-              />
-              <p className="text-xs text-muted-foreground">How long will this habit take each time?</p>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="progressType">Progress Tracking</Label>
-              <Select value={progressType} onValueChange={setProgressType}>
-                <SelectTrigger id="progressType" className="rounded-lg">
-                  <SelectValue placeholder="Select how to track progress" />
-                </SelectTrigger>
-                <SelectContent>
-                  {PROGRESS_TYPES.map((type) => (
-                    <SelectItem key={type.value} value={type.value}>
-                      {type.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">How will you measure your progress?</p>
             </div>
             
             <div className="space-y-2">
@@ -255,53 +165,52 @@ const NewHabitForm = () => {
             {frequency === 'weekly' && (
               <div className="space-y-2">
                 <Label>Days of Week</Label>
-                <div className="flex flex-wrap gap-2">
-                  {DAYS_OF_WEEK.map((day, index) => {
-                    const shortDay = day.charAt(0).toUpperCase();
-                    return (
-                      <Button
-                        key={day}
-                        type="button"
-                        variant="outline"
-                        className={`h-10 w-10 rounded-full p-0 ${
-                          weekDays.includes(day) 
-                            ? 'bg-primary text-primary-foreground' 
-                            : 'bg-background'
-                        }`}
-                        onClick={() => handleWeekDayToggle(day)}
-                      >
-                        {shortDay}
-                      </Button>
-                    );
-                  })}
+                <div className="grid grid-cols-4 gap-3">
+                  {DAYS_OF_WEEK.map((day) => (
+                    <div key={day} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={day}
+                        checked={weekDays.includes(day)}
+                        onCheckedChange={() => handleWeekDayToggle(day)}
+                        className="rounded-md"
+                      />
+                      <Label htmlFor={day} className="cursor-pointer capitalize">
+                        {day.slice(0, 3)}
+                      </Label>
+                    </div>
+                  ))}
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">Select the days you want to perform this habit</p>
               </div>
             )}
             
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="reminderEnabled" className="font-medium text-base">Enable Reminder</Label>
-                <Switch 
-                  id="reminderEnabled" 
-                  checked={reminderEnabled}
-                  onCheckedChange={setReminderEnabled}
-                />
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">Get notified when it's time for this habit</p>
-              
-              {reminderEnabled && (
-                <div className="pt-2">
-                  <Label htmlFor="reminder">Reminder Time</Label>
-                  <Input
-                    id="reminder"
-                    type="time"
-                    value={reminder}
-                    onChange={(e) => setReminder(e.target.value)}
-                    className="rounded-lg mt-1"
-                  />
-                </div>
-              )}
+            <div className="space-y-2">
+              <Label htmlFor="category">Category</Label>
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger id="category" className="rounded-lg">
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CATEGORIES.map((cat) => (
+                    <SelectItem key={cat} value={cat}>
+                      {cat}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="reminder">Reminder Time (Optional)</Label>
+              <Input
+                id="reminder"
+                type="time"
+                value={reminder}
+                onChange={(e) => setReminder(e.target.value)}
+                className="rounded-lg"
+              />
+              <p className="text-xs text-muted-foreground">
+                Set a time to be reminded about this habit
+              </p>
             </div>
             
             <div className="space-y-2">
@@ -319,7 +228,7 @@ const NewHabitForm = () => {
               </div>
             </div>
           </CardContent>
-          <CardFooter className="flex justify-between border-t pt-6 px-6 pb-6 bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5">
+          <CardFooter className="flex justify-between border-t pt-6">
             <Button 
               type="button" 
               variant="outline" 
@@ -328,10 +237,7 @@ const NewHabitForm = () => {
             >
               Cancel
             </Button>
-            <Button 
-              type="submit" 
-              className="rounded-lg bg-gradient-to-r from-primary to-accent hover:opacity-90"
-            >
+            <Button type="submit" className="rounded-lg">
               Create Habit
             </Button>
           </CardFooter>
@@ -345,9 +251,7 @@ const NewHabitPage = () => {
   return (
     <HabitProvider>
       <Layout>
-        <div className="max-w-6xl mx-auto">
-          <NewHabitForm />
-        </div>
+        <NewHabitForm />
       </Layout>
     </HabitProvider>
   );

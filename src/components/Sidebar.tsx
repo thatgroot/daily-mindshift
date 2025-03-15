@@ -1,111 +1,99 @@
 
 import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import {
-  Sheet,
-  SheetContent,
-} from "@/components/ui/sheet"
-import {
-  ScrollArea
-} from "@/components/ui/scroll-area"
-import {
-  Home,
+  LayoutDashboard,
   Calendar,
-  BarChart3,
+  BarChart,
   Settings,
-  Book,
-} from "lucide-react"
-import { Link, useLocation } from "react-router-dom";
-import { cn } from "@/lib/utils";
-import { ModeToggle } from './ModeToggle';
-import { Button } from './ui/button';
+  X,
+  PlusCircle,
+  FileText,
+} from 'lucide-react';
 
 interface SidebarProps {
-  open: boolean;
-  onOpenChange?: (open: boolean) => void;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
-const SIDEBAR_LINKS = [
-  {
-    href: "/",
-    icon: <Home className="h-4 w-4" />,
-    label: "Dashboard",
-  },
-  {
-    href: "/calendar",
-    icon: <Calendar className="h-4 w-4" />,
-    label: "Calendar",
-  },
-  {
-    href: "/analytics",
-    icon: <BarChart3 className="h-4 w-4" />,
-    label: "Analytics",
-  },
-  {
-    href: "/settings",
-    icon: <Settings className="h-4 w-4" />,
-    label: "Settings",
-  },
-  {
-    href: "/docs",
-    icon: <Book className="h-4 w-4" />,
-    label: "Docs",
-  },
-];
-
-import { useAuth } from '@/contexts/AuthContext';
-import { LogOut } from 'lucide-react';
-
-const Sidebar = ({ open, onOpenChange }: SidebarProps) => {
-  const { signOut } = useAuth();
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const location = useLocation();
-
+  
+  const links = [
+    { href: '/', icon: LayoutDashboard, label: 'Dashboard' },
+    { href: '/calendar', icon: Calendar, label: 'Calendar' },
+    { href: '/analytics', icon: BarChart, label: 'Analytics' },
+    { href: '/settings', icon: Settings, label: 'Settings' },
+    { href: '/docs', icon: FileText, label: 'Documentation' },
+  ];
+  
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="left" className="p-0">
+    <>
+      <div
+        className={cn(
+          'fixed inset-0 z-40 bg-background/80 backdrop-blur-sm transition-opacity',
+          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        )}
+        onClick={onClose}
+      />
+      
+      <aside
+        className={cn(
+          'fixed inset-y-0 left-0 z-50 w-72 border-r bg-background p-6 shadow-lg transform transition-transform duration-300 ease-in-out',
+          isOpen ? 'translate-x-0' : '-translate-x-full'
+        )}
+      >
         <div className="flex flex-col h-full">
-          <div className="p-4 border-b">
-            <h2 className="text-lg font-semibold">Daily Boost</h2>
-            <p className="text-sm text-muted-foreground">Track your habits</p>
-          </div>
-
-          <ScrollArea className="flex-1 p-4">
-            <nav className="grid gap-2">
-              {SIDEBAR_LINKS.map((link) => (
-                <Link
-                  key={link.href}
-                  to={link.href}
-                  onClick={() => onOpenChange?.(false)}
-                  className={cn(
-                    "flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-accent/50 transition-colors",
-                    location.pathname === link.href && "bg-accent/50 font-medium"
-                  )}
-                >
-                  {link.icon}
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
-          </ScrollArea>
-
-          <div className="p-4 border-t mt-auto">
-            <Button 
-              variant="outline" 
-              className="w-full justify-start flex gap-2"
-              onClick={async () => {
-                await signOut();
-              }}
-            >
-              <LogOut className="h-4 w-4" />
-              Sign Out
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-xl font-bold">Daily Routines</h2>
+            <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full">
+              <X className="h-5 w-5" />
             </Button>
-            <div className="mt-4 flex items-center justify-between">
-              <ModeToggle />
-              <p className="text-xs text-muted-foreground">v1.0.0</p>
+          </div>
+          
+          <nav className="space-y-1.5">
+            {links.map((link) => (
+              <Link key={link.href} to={link.href}>
+                <Button
+                  variant={location.pathname === link.href ? 'secondary' : 'ghost'}
+                  className={cn(
+                    'w-full justify-start gap-3 rounded-lg text-base h-auto py-3 px-4',
+                    location.pathname === link.href && 'font-medium'
+                  )}
+                  onClick={onClose}
+                >
+                  <link.icon className="h-5 w-5" />
+                  {link.label}
+                </Button>
+              </Link>
+            ))}
+          </nav>
+          
+          <div className="mt-6 border-t pt-6">
+            <Link to="/new-habit">
+              <Button
+                className="w-full justify-start gap-3 rounded-lg"
+                onClick={onClose}
+              >
+                <PlusCircle className="h-5 w-5" />
+                New Habit
+              </Button>
+            </Link>
+          </div>
+          
+          <div className="mt-auto">
+            <div className="rounded-lg border bg-card p-4">
+              <h3 className="font-medium mb-2">Quick Tips</h3>
+              <p className="text-sm text-muted-foreground">
+                Start small with 1-3 habits and be consistent. Check your stats regularly to stay motivated.
+              </p>
             </div>
           </div>
         </div>
-      </SheetContent>
-    </Sheet>
+      </aside>
+    </>
   );
 };
 

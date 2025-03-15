@@ -11,7 +11,6 @@ interface ProgressRingProps {
   className?: string;
   showPercentage?: boolean;
   label?: string;
-  progressColor?: string;
 }
 
 const ProgressRing: React.FC<ProgressRingProps> = ({
@@ -22,26 +21,14 @@ const ProgressRing: React.FC<ProgressRingProps> = ({
   className,
   showPercentage = true,
   label,
-  progressColor,
 }) => {
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
   const percent = max === 0 ? 0 : (value / max) * 100;
   const offset = circumference - (percent / 100) * circumference;
   
-  // Function to determine color based on GitHub-style commit indicators
-  const getGithubStyleColor = () => {
-    const ratio = value / max;
-    if (progressColor) return progressColor;
-    if (ratio === 0) return 'stroke-muted';
-    if (ratio < 0.25) return 'stroke-[#0e4429] dark:stroke-[#39d353]/30';
-    if (ratio < 0.5) return 'stroke-[#006d32] dark:stroke-[#39d353]/50';
-    if (ratio < 0.75) return 'stroke-[#26a641] dark:stroke-[#39d353]/75';
-    return 'stroke-[#39d353]';
-  };
-
   return (
-    <div className={cn("relative flex items-center justify-center group", className)}>
+    <div className={cn("relative flex items-center justify-center", className)}>
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="transform -rotate-90">
         {/* Background circle */}
         <circle
@@ -50,7 +37,7 @@ const ProgressRing: React.FC<ProgressRingProps> = ({
           r={radius}
           fill="none"
           strokeWidth={strokeWidth}
-          className="stroke-secondary/40 dark:stroke-gray-800"
+          className="stroke-secondary"
         />
         
         {/* Progress circle */}
@@ -62,7 +49,7 @@ const ProgressRing: React.FC<ProgressRingProps> = ({
           strokeWidth={strokeWidth}
           strokeDasharray={circumference}
           strokeDashoffset={offset}
-          className={cn("transition-all duration-1000 ease-in-out", getGithubStyleColor())}
+          className="stroke-accent transition-all duration-1000 ease-in-out"
           strokeLinecap="round"
         />
       </svg>

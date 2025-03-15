@@ -11,39 +11,28 @@ import Settings from "./pages/Settings";
 import NewHabit from "./pages/NewHabit";
 import NotFound from "./pages/NotFound";
 import Docs from "./pages/Docs";
-import Auth from "./pages/Auth";
 import { ErrorBoundary } from "./components/ErrorBoundary";
-import { AuthProvider } from "./contexts/AuthContext";
-import PrivateRoute from "./components/PrivateRoute";
-import OnboardingTutorial from "./components/OnboardingTutorial";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <AuthProvider>
-        <div className="bg-gradient-to-br from-background via-background/95 to-primary/5 dark:from-gray-950 dark:via-gray-900/98 dark:to-primary/10 min-h-screen transition-colors duration-300">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-accent/10 via-transparent to-transparent dark:from-accent/20 pointer-events-none" aria-hidden="true"></div>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <ErrorBoundary>
-              <OnboardingTutorial />
-              <Routes>
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/" element={<PrivateRoute><Index /></PrivateRoute>} />
-                <Route path="/calendar" element={<PrivateRoute><Calendar /></PrivateRoute>} />
-                <Route path="/analytics" element={<PrivateRoute><Analytics /></PrivateRoute>} />
-                <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
-                <Route path="/new-habit" element={<PrivateRoute><NewHabit /></PrivateRoute>} />
-                <Route path="/docs" element={<PrivateRoute><Docs /></PrivateRoute>} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </ErrorBoundary>
-          </BrowserRouter>
-        </div>
-      </AuthProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <ErrorBoundary>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/calendar" element={<Calendar />} />
+            <Route path="/analytics" element={<Analytics />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/new-habit" element={<NewHabit />} />
+            <Route path="/docs" element={<Docs />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </ErrorBoundary>
+      </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );
