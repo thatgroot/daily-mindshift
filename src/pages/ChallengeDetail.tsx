@@ -1,11 +1,15 @@
+
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Trophy, Star, Target, Flame, Award, CheckCheck, ChevronLeft, Users, Calendar, Clock } from 'lucide-react';
+import { Trophy, Star, Target, Flame, Award, CheckCheck, ChevronLeft, Users, Calendar, Clock, GraduationCap, ListChecks, MessageSquare, Plus, Info } from 'lucide-react';
 import { Challenge, ChallengeCategory } from '@/types/challenge';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 // Reusing the mock data from Challenges.tsx for this example
 const mockChallenges: Challenge[] = [
@@ -203,6 +207,44 @@ const mockChallenges: Challenge[] = [
   }
 ];
 
+// Expert tips for each milestone (new mock data)
+const mockExpertTips = {
+  'm1': [
+    { id: 'e1', name: 'Dr. Sarah Johnson', tip: 'Start with just 5 minutes if 10 feels too long, gradually working your way up.', role: 'Mindfulness Coach' },
+    { id: 'e2', name: 'Mark Williams', tip: 'Try meditating at the same time each day to build a consistent habit.', role: 'Habit Formation Expert' }
+  ],
+  'm2': [
+    { id: 'e3', name: 'Dr. Emily Chen', tip: 'If you miss a day, don't give up. Just continue the next day without guilt.', role: 'Psychologist' },
+    { id: 'e4', name: 'Alex Thompson', tip: 'Experiment with different meditation styles to find what works for you.', role: 'Meditation Instructor' }
+  ],
+  'm3': [
+    { id: 'e5', name: 'Dr. Michael Brown', tip: 'By this point, focus on deepening your practice rather than just extending time.', role: 'Meditation Researcher' },
+    { id: 'e6', name: 'Lisa Patel', tip: 'Consider joining a meditation group to maintain motivation through month's end.', role: 'Community Facilitator' }
+  ]
+};
+
+// Step-by-step checklist for each milestone (new mock data)
+const mockSteps = {
+  'm1': [
+    { id: 's1', text: 'Set up a dedicated meditation space', completed: false },
+    { id: 's2', text: 'Download a meditation timer app', completed: false },
+    { id: 's3', text: 'Meditate for 10 minutes on day 1', completed: false },
+    { id: 's4', text: 'Complete 7 consecutive days', completed: false }
+  ],
+  'm2': [
+    { id: 's5', text: 'Try guided meditation for variety', completed: false },
+    { id: 's6', text: 'Increase session length to 15 minutes', completed: false },
+    { id: 's7', text: 'Journal about your experience', completed: false },
+    { id: 's8', text: 'Complete 14 consecutive days', completed: false }
+  ],
+  'm3': [
+    { id: 's9', text: 'Practice mindfulness outside of formal sessions', completed: false },
+    { id: 's10', text: 'Try different meditation positions', completed: false },
+    { id: 's11', text: 'Share your progress with a friend', completed: false },
+    { id: 's12', text: 'Complete all 30 days', completed: false }
+  ]
+};
+
 const getChallengeIcon = (category: ChallengeCategory) => {
   switch (category) {
     case 'fitness':
@@ -241,6 +283,8 @@ const ChallengeDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [isJoining, setIsJoining] = useState(false);
+  const [openMilestones, setOpenMilestones] = useState<Record<string, boolean>>({});
+  const [steps, setSteps] = useState(mockSteps);
   
   // Find the selected challenge
   const challenge = mockChallenges.find(c => c.id === id);
@@ -270,6 +314,31 @@ const ChallengeDetail: React.FC = () => {
       // For now, just navigate back to challenges
       navigate('/challenges');
     }, 1500);
+  };
+
+  const toggleMilestone = (milestoneId: string) => {
+    setOpenMilestones(prev => ({
+      ...prev,
+      [milestoneId]: !prev[milestoneId]
+    }));
+  };
+
+  const toggleStep = (milestoneId: string, stepId: string) => {
+    setSteps(prev => {
+      const updatedSteps = { ...prev };
+      const milestoneSteps = [...updatedSteps[milestoneId as keyof typeof updatedSteps]];
+      const stepIndex = milestoneSteps.findIndex(step => step.id === stepId);
+      
+      if (stepIndex !== -1) {
+        milestoneSteps[stepIndex] = {
+          ...milestoneSteps[stepIndex],
+          completed: !milestoneSteps[stepIndex].completed
+        };
+        updatedSteps[milestoneId as keyof typeof updatedSteps] = milestoneSteps;
+      }
+      
+      return updatedSteps;
+    });
   };
 
   return (
@@ -307,31 +376,107 @@ const ChallengeDetail: React.FC = () => {
         <div className="lg:col-span-2 space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Milestones</CardTitle>
+              <CardTitle className="flex items-center">
+                <ListChecks className="mr-2 h-5 w-5 text-primary" />
+                Milestones
+              </CardTitle>
+              <CardDescription>
+                Complete these milestones to successfully finish the challenge
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {challenge.milestones.map((milestone, index) => (
-                  <div key={milestone.id} className="border rounded-lg p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <h3 className="font-medium">{milestone.name}</h3>
-                        <p className="text-sm text-muted-foreground">{milestone.description}</p>
+                {challenge.milestones.map((milestone) => (
+                  <Collapsible
+                    key={milestone.id}
+                    open={openMilestones[milestone.id]}
+                    onOpenChange={() => toggleMilestone(milestone.id)}
+                    className="border rounded-lg overflow-hidden"
+                  >
+                    <div className="p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <CollapsibleTrigger className="flex items-center gap-2 text-left">
+                            <h3 className="font-medium">{milestone.name}</h3>
+                            <ChevronLeft className={`h-4 w-4 transition-transform ${openMilestones[milestone.id] ? 'rotate-90' : '-rotate-90'}`} />
+                          </CollapsibleTrigger>
+                          <p className="text-sm text-muted-foreground mt-1">{milestone.description}</p>
+                        </div>
+                        <div className="bg-primary/10 text-primary rounded-full px-2 py-1 text-sm">
+                          {milestone.current}/{milestone.target}
+                        </div>
                       </div>
-                      <div className="bg-primary/10 text-primary rounded-full px-2 py-1 text-sm">
-                        {milestone.current}/{milestone.target}
-                      </div>
+                      <Progress value={(milestone.current / milestone.target) * 100} className="h-2" />
                     </div>
-                    <Progress value={(milestone.current / milestone.target) * 100} className="h-2" />
-                  </div>
+                    
+                    <CollapsibleContent>
+                      <div className="border-t px-4 py-3 bg-muted/20">
+                        <h4 className="font-medium flex items-center mb-2">
+                          <Info className="h-4 w-4 mr-2 text-primary" />
+                          Steps to Complete
+                        </h4>
+                        <div className="space-y-3 mb-4">
+                          {steps[milestone.id as keyof typeof steps]?.map((step) => (
+                            <div key={step.id} className="flex items-start space-x-2">
+                              <Checkbox 
+                                id={step.id} 
+                                checked={step.completed}
+                                onCheckedChange={() => toggleStep(milestone.id, step.id)}
+                                className="mt-0.5"
+                              />
+                              <Label
+                                htmlFor={step.id}
+                                className={`${step.completed ? 'line-through text-muted-foreground' : ''}`}
+                              >
+                                {step.text}
+                              </Label>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="border-t px-4 py-3 bg-primary/5">
+                        <h4 className="font-medium flex items-center mb-2">
+                          <GraduationCap className="h-4 w-4 mr-2 text-primary" />
+                          Expert Recommendations
+                        </h4>
+                        <div className="space-y-3">
+                          {mockExpertTips[milestone.id as keyof typeof mockExpertTips]?.map((expertTip) => (
+                            <Card key={expertTip.id} className="border bg-card">
+                              <CardContent className="p-3">
+                                <div className="flex items-start gap-2">
+                                  <MessageSquare className="h-4 w-4 text-primary mt-1 flex-shrink-0" />
+                                  <div>
+                                    <p className="text-sm">{expertTip.tip}</p>
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                      <strong>{expertTip.name}</strong> · {expertTip.role}
+                                    </p>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
                 ))}
               </div>
             </CardContent>
+            <CardFooter>
+              <Button variant="outline" className="w-full" onClick={() => navigate('/challenges')}>
+                <Plus className="mr-2 h-4 w-4" />
+                Browse More Challenges
+              </Button>
+            </CardFooter>
           </Card>
           
           <Card>
             <CardHeader>
-              <CardTitle>Tips for Success</CardTitle>
+              <CardTitle className="flex items-center">
+                <Target className="mr-2 h-5 w-5 text-primary" />
+                Tips for Success
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="list-disc pl-5 space-y-2">
@@ -348,7 +493,10 @@ const ChallengeDetail: React.FC = () => {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Your Progress</CardTitle>
+              <CardTitle className="flex items-center">
+                <Clock className="mr-2 h-5 w-5 text-primary" />
+                Your Progress
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-center mb-4">
@@ -386,7 +534,10 @@ const ChallengeDetail: React.FC = () => {
           
           <Card>
             <CardHeader>
-              <CardTitle>Rewards</CardTitle>
+              <CardTitle className="flex items-center">
+                <Award className="mr-2 h-5 w-5 text-primary" />
+                Rewards
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
