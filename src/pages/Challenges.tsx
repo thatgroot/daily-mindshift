@@ -1,14 +1,13 @@
-
 import React, { useState } from 'react';
 import Layout from '@/components/Layout';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Trophy, Star, Target, Flame, Award, CheckCheck } from 'lucide-react';
+import { Trophy, Star, Target, Flame, Award, CheckCheck, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Challenge, ChallengeCategory } from '@/types/challenge';
+import { Link, useNavigate } from 'react-router-dom';
 
-// Mock data for challenges
 const mockChallenges: Challenge[] = [
   {
     id: '1',
@@ -239,8 +238,14 @@ const getDifficultyColor = (difficulty: Challenge['difficulty']) => {
 };
 
 const ChallengeCard: React.FC<{ challenge: Challenge }> = ({ challenge }) => {
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    navigate(`/challenge/${challenge.id}`);
+  };
+
   return (
-    <Card className="overflow-hidden transition-all hover:shadow-md">
+    <Card className="overflow-hidden transition-all hover:shadow-md cursor-pointer" onClick={handleCardClick}>
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
           <div className="flex items-center gap-2">
@@ -277,11 +282,20 @@ const ChallengeCard: React.FC<{ challenge: Challenge }> = ({ challenge }) => {
           </div>
         </div>
       </CardContent>
-      <CardFooter className="pt-2">
-        <Button className="w-full">
-          {challenge.status === 'not_started' ? 'Start Challenge' : 
-           challenge.status === 'in_progress' ? 'Continue' : 
-           challenge.status === 'completed' ? 'View Details' : 'Try Again'}
+      <CardFooter className="pt-2 flex justify-between">
+        <Button 
+          className="w-full flex justify-between items-center"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/challenge/${challenge.id}`);
+          }}
+        >
+          <span>
+            {challenge.status === 'not_started' ? 'Start Challenge' : 
+             challenge.status === 'in_progress' ? 'Continue' : 
+             challenge.status === 'completed' ? 'View Details' : 'Try Again'}
+          </span>
+          <ChevronRight className="h-4 w-4" />
         </Button>
       </CardFooter>
     </Card>
