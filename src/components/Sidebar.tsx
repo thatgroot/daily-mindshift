@@ -11,6 +11,7 @@ import {
   X,
   PlusCircle,
   FileText,
+  Trophy,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -25,6 +26,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
     { href: '/', icon: LayoutDashboard, label: 'Dashboard' },
     { href: '/calendar', icon: Calendar, label: 'Calendar' },
     { href: '/analytics', icon: BarChart, label: 'Analytics' },
+    { href: '/challenges', icon: Trophy, label: 'Challenges' },
     { href: '/settings', icon: Settings, label: 'Settings' },
     { href: '/docs', icon: FileText, label: 'Documentation' },
   ];
