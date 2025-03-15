@@ -18,7 +18,8 @@ import {
   LayoutGrid, 
   Loader2,
   CircleCheck,
-  BarChart4
+  BarChart4,
+  Sparkles
 } from 'lucide-react';
 import { Habit } from '@/types/habit';
 import StatsCard from './StatsCard';
@@ -159,10 +160,11 @@ const Dashboard: React.FC = () => {
       {/* Main Content */}
       <div className={`transition-all duration-500 ${tabsClasses}`}>
         <Tabs defaultValue="today" value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="mb-4 w-full grid grid-cols-3 h-10 bg-muted/30 rounded-lg p-1">
+          <TabsList className="mb-4 w-full grid grid-cols-4 h-10 bg-muted/30 rounded-lg p-1">
             <TabsTrigger value="today" className="rounded-md text-sm">Today</TabsTrigger>
             <TabsTrigger value="all" className="rounded-md text-sm">All Habits</TabsTrigger>
             <TabsTrigger value="insights" className="rounded-md text-sm">Insights</TabsTrigger>
+            <TabsTrigger value="ai" className="rounded-md text-sm">AI</TabsTrigger>
           </TabsList>
           
           {/* Today's Habits Tab */}
@@ -286,6 +288,167 @@ const Dashboard: React.FC = () => {
                 </CardHeader>
                 <CardContent className="pt-4">
                   <HabitMatrix habits={habits} />
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+          
+          {/* AI Insights Tab */}
+          <TabsContent value="ai" className="space-y-6 animate-in fade-in-50">
+            <h2 className="text-lg font-semibold flex items-center gap-2 mb-2">
+              <Sparkles className="h-5 w-5 text-blue-500" />
+              AI Insights
+            </h2>
+            
+            <div className="grid grid-cols-1 gap-4">
+              <Card className="overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border-none shadow-md">
+                <CardHeader className="pb-3 border-b border-blue-100/50 dark:border-blue-800/30">
+                  <CardTitle className="text-base font-medium flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-blue-500" />
+                    Habit Optimization
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div className="bg-blue-100 dark:bg-blue-900/50 rounded-full p-2 mt-1">
+                        <Sparkles className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-sm mb-1">Optimal Time Suggestion</h3>
+                        <p className="text-sm text-muted-foreground">Based on your completion patterns, try doing <span className="font-medium text-foreground">Meditation</span> between <span className="font-medium text-foreground">7:00 AM - 8:00 AM</span> for best results.</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start gap-3">
+                      <div className="bg-purple-100 dark:bg-purple-900/50 rounded-full p-2 mt-1">
+                        <TrendingUp className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-sm mb-1">Pattern Recognition</h3>
+                        <p className="text-sm text-muted-foreground">You're more consistent with habits on weekdays than weekends. Consider adjusting weekend routines to improve overall consistency.</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-start gap-3">
+                      <div className="bg-green-100 dark:bg-green-900/50 rounded-full p-2 mt-1">
+                        <Award className="h-4 w-4 text-green-600 dark:text-green-400" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium text-sm mb-1">Achievement Analysis</h3>
+                        <p className="text-sm text-muted-foreground">You're on track to reach your goal of <span className="font-medium text-foreground">30-day meditation streak</span> in 9 more days. Keep going!</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="overflow-hidden bg-gradient-to-br from-rose-50 to-orange-50 dark:from-rose-950/30 dark:to-orange-950/30 border-none shadow-md">
+                <CardHeader className="pb-3 border-b border-rose-100/50 dark:border-rose-800/30">
+                  <CardTitle className="text-base font-medium flex items-center gap-2">
+                    <Flame className="h-4 w-4 text-rose-500" />
+                    Smart Recommendations
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <div className="space-y-4">
+                    <p className="text-sm text-muted-foreground mb-2">Based on your current habits and progress, here are some recommendations:</p>
+                    
+                    <div className="space-y-3">
+                      <div className="bg-white dark:bg-gray-800 rounded-lg p-3 shadow-sm">
+                        <h3 className="font-medium text-sm mb-1 flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full bg-blue-500"></div>
+                          Add a complementary habit
+                        </h3>
+                        <p className="text-sm text-muted-foreground">Consider adding <span className="font-medium text-foreground">"Evening Journaling"</span> to complement your meditation practice. Users with similar profiles reported 45% better mindfulness results.</p>
+                      </div>
+                      
+                      <div className="bg-white dark:bg-gray-800 rounded-lg p-3 shadow-sm">
+                        <h3 className="font-medium text-sm mb-1 flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                          Adjust your goal
+                        </h3>
+                        <p className="text-sm text-muted-foreground">Your <span className="font-medium text-foreground">"Read 30 mins"</span> habit has a 32% completion rate. Consider reducing to 15 minutes to build momentum.</p>
+                      </div>
+                      
+                      <div className="bg-white dark:bg-gray-800 rounded-lg p-3 shadow-sm">
+                        <h3 className="font-medium text-sm mb-1 flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full bg-purple-500"></div>
+                          Try habit stacking
+                        </h3>
+                        <p className="text-sm text-muted-foreground">Link your <span className="font-medium text-foreground">"Drink Water"</span> habit with an existing routine like "Morning Coffee" for better adherence.</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="overflow-hidden bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/30 dark:to-teal-950/30 border-none shadow-md">
+                <CardHeader className="pb-3 border-b border-emerald-100/50 dark:border-emerald-800/30">
+                  <CardTitle className="text-base font-medium flex items-center gap-2">
+                    <BarChart4 className="h-4 w-4 text-emerald-500" />
+                    Predictive Analysis
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <div className="space-y-4">
+                    <p className="text-sm text-muted-foreground">Our AI model predicts the following based on your current habit data:</p>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="bg-white dark:bg-gray-800 rounded-lg p-3 shadow-sm">
+                        <h3 className="font-medium text-sm mb-2">30-Day Forecast</h3>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-muted-foreground">Current Consistency</span>
+                          <span className="text-xs font-medium">62%</span>
+                        </div>
+                        <div className="w-full bg-emerald-100 dark:bg-emerald-900/30 h-1.5 rounded-full my-1 overflow-hidden">
+                          <div className="bg-emerald-500 h-1.5 rounded-full" style={{ width: '62%' }}></div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-muted-foreground">Predicted Improvement</span>
+                          <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">+12%</span>
+                        </div>
+                        <div className="w-full bg-emerald-100 dark:bg-emerald-900/30 h-1.5 rounded-full my-1 overflow-hidden">
+                          <div className="bg-emerald-500 h-1.5 rounded-full" style={{ width: '74%' }}></div>
+                        </div>
+                      </div>
+                      
+                      <div className="bg-white dark:bg-gray-800 rounded-lg p-3 shadow-sm">
+                        <h3 className="font-medium text-sm mb-2">Success Factors</h3>
+                        <div className="space-y-2">
+                          <div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs text-muted-foreground">Morning routine</span>
+                              <span className="text-xs font-medium">High impact</span>
+                            </div>
+                            <div className="w-full bg-blue-100 dark:bg-blue-900/30 h-1.5 rounded-full my-1">
+                              <div className="bg-blue-500 h-1.5 rounded-full" style={{ width: '85%' }}></div>
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs text-muted-foreground">Exercise habit</span>
+                              <span className="text-xs font-medium">Medium impact</span>
+                            </div>
+                            <div className="w-full bg-blue-100 dark:bg-blue-900/30 h-1.5 rounded-full my-1">
+                              <div className="bg-blue-500 h-1.5 rounded-full" style={{ width: '60%' }}></div>
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs text-muted-foreground">Weekend consistency</span>
+                              <span className="text-xs font-medium">Low impact</span>
+                            </div>
+                            <div className="w-full bg-blue-100 dark:bg-blue-900/30 h-1.5 rounded-full my-1">
+                              <div className="bg-blue-500 h-1.5 rounded-full" style={{ width: '35%' }}></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </div>
