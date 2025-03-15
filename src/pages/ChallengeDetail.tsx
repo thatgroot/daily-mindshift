@@ -1,247 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Trophy, Star, Target, Flame, Award, CheckCheck, ChevronLeft, Users, Calendar, Clock, GraduationCap, ListChecks, MessageSquare, Plus, Info } from 'lucide-react';
-import { Challenge, ChallengeCategory } from '@/types/challenge';
+import { Trophy, Star, Target, Flame, Award, CheckCheck, ChevronLeft, Users, Calendar, Clock, GraduationCap, ListChecks, MessageSquare, Plus, Info, CheckCircle2 } from 'lucide-react';
+import { Challenge, ChallengeCategory, DailyCheckIn } from '@/types/challenge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { format, addDays, isBefore, isToday, parseISO } from 'date-fns';
+import { toast } from '@/hooks/use-toast';
+import { Switch } from '@/components/ui/switch';
+import { supabase } from '@/integrations/supabase/client';
 
-// Reusing the mock data from Challenges.tsx for this example
 const mockChallenges: Challenge[] = [
-  {
-    id: '1',
-    title: '30 Days of Meditation',
-    description: 'Meditate for at least 10 minutes every day for 30 days to build a lasting mindfulness habit.',
-    category: 'mindfulness',
-    difficulty: 'beginner',
-    duration: 30,
-    status: 'not_started',
-    progress: 0,
-    milestones: [
-      {
-        id: 'm1',
-        name: 'First Week',
-        description: 'Complete 7 days of meditation',
-        target: 7,
-        current: 0,
-        completed: false
-      },
-      {
-        id: 'm2',
-        name: 'Two Week Streak',
-        description: 'Complete 14 consecutive days',
-        target: 14,
-        current: 0,
-        completed: false
-      },
-      {
-        id: 'm3',
-        name: 'Full Month',
-        description: 'Complete all 30 days',
-        target: 30,
-        current: 0,
-        completed: false
-      }
-    ],
-    rewards: [
-      {
-        type: 'badge',
-        value: 'Zen Master',
-        description: 'Earned for completing the 30-day meditation challenge'
-      },
-      {
-        type: 'points',
-        value: 500
-      }
-    ],
-    participants: 1248,
-    icon: 'mindfulness'
-  },
-  {
-    id: '2',
-    title: 'Couch to 5K',
-    description: 'Transform from a couch potato to a 5K runner in 8 weeks with this progressive training program.',
-    category: 'fitness',
-    difficulty: 'intermediate',
-    duration: 56,
-    status: 'not_started',
-    progress: 0,
-    milestones: [
-      {
-        id: 'm1',
-        name: 'Week 1 Complete',
-        description: 'Finish first week of training',
-        target: 3,
-        current: 0,
-        completed: false
-      },
-      {
-        id: 'm2',
-        name: 'First 2K',
-        description: 'Run 2K without stopping',
-        target: 1,
-        current: 0,
-        completed: false
-      },
-      {
-        id: 'm3',
-        name: 'Final 5K',
-        description: 'Complete your first 5K run',
-        target: 1,
-        current: 0,
-        completed: false
-      }
-    ],
-    rewards: [
-      {
-        type: 'badge',
-        value: 'Road Runner',
-        description: 'Congratulations on your first 5K!'
-      },
-      {
-        type: 'achievement',
-        value: 'Running Enthusiast'
-      }
-    ],
-    participants: 3567,
-    icon: 'fitness'
-  },
-  {
-    id: '3',
-    title: 'Digital Detox Weekend',
-    description: 'Spend a weekend disconnecting from digital devices and reconnecting with the physical world.',
-    category: 'health',
-    difficulty: 'beginner',
-    duration: 2,
-    status: 'not_started',
-    progress: 0,
-    milestones: [
-      {
-        id: 'm1',
-        name: 'Preparation',
-        description: 'Set up auto-replies and notify contacts',
-        target: 1,
-        current: 0,
-        completed: false
-      },
-      {
-        id: 'm2',
-        name: 'Day One',
-        description: 'Complete first day without digital devices',
-        target: 1,
-        current: 0,
-        completed: false
-      },
-      {
-        id: 'm3',
-        name: 'Full Weekend',
-        description: 'Complete the entire weekend detox',
-        target: 1,
-        current: 0,
-        completed: false
-      }
-    ],
-    rewards: [
-      {
-        type: 'badge',
-        value: 'Digital Detox Champion',
-        description: 'Successfully completed a weekend without screens'
-      }
-    ],
-    participants: 926,
-    icon: 'health'
-  },
-  {
-    id: '4',
-    title: 'Learn a New Skill in 21 Days',
-    description: 'Commit to learning a new skill by practicing for at least 30 minutes daily for 21 days.',
-    category: 'learning',
-    difficulty: 'intermediate',
-    duration: 21,
-    status: 'not_started',
-    progress: 0,
-    milestones: [
-      {
-        id: 'm1',
-        name: 'First Week',
-        description: 'Complete 7 days of learning',
-        target: 7,
-        current: 0,
-        completed: false
-      },
-      {
-        id: 'm2',
-        name: 'Two Week Milestone',
-        description: 'Complete 14 days of learning',
-        target: 14,
-        current: 0,
-        completed: false
-      },
-      {
-        id: 'm3',
-        name: 'Full Course',
-        description: 'Complete all 21 days',
-        target: 21,
-        current: 0,
-        completed: false
-      }
-    ],
-    rewards: [
-      {
-        type: 'badge',
-        value: 'Skill Master',
-        description: 'Mastered a new skill in 21 days'
-      },
-      {
-        type: 'points',
-        value: 300
-      }
-    ],
-    participants: 2134,
-    icon: 'learning'
-  }
+  // ... keep existing mockChallenges array
 ];
 
-// Expert tips for each milestone (new mock data)
 const mockExpertTips = {
-  'm1': [
-    { id: 'e1', name: 'Dr. Sarah Johnson', tip: 'Start with just 5 minutes if 10 feels too long, gradually working your way up.', role: 'Mindfulness Coach' },
-    { id: 'e2', name: 'Mark Williams', tip: 'Try meditating at the same time each day to build a consistent habit.', role: 'Habit Formation Expert' }
-  ],
-  'm2': [
-    { id: 'e3', name: 'Dr. Emily Chen', tip: 'If you miss a day, don\'t give up. Just continue the next day without guilt.', role: 'Psychologist' },
-    { id: 'e4', name: 'Alex Thompson', tip: 'Experiment with different meditation styles to find what works for you.', role: 'Meditation Instructor' }
-  ],
-  'm3': [
-    { id: 'e5', name: 'Dr. Michael Brown', tip: 'By this point, focus on deepening your practice rather than just extending time.', role: 'Meditation Researcher' },
-    { id: 'e6', name: 'Lisa Patel', tip: 'Consider joining a meditation group to maintain motivation through month\'s end.', role: 'Community Facilitator' }
-  ]
+  // ... keep existing mockExpertTips object
 };
 
-// Step-by-step checklist for each milestone (new mock data)
 const mockSteps = {
-  'm1': [
-    { id: 's1', text: 'Set up a dedicated meditation space', completed: false },
-    { id: 's2', text: 'Download a meditation timer app', completed: false },
-    { id: 's3', text: 'Meditate for 10 minutes on day 1', completed: false },
-    { id: 's4', text: 'Complete 7 consecutive days', completed: false }
-  ],
-  'm2': [
-    { id: 's5', text: 'Try guided meditation for variety', completed: false },
-    { id: 's6', text: 'Increase session length to 15 minutes', completed: false },
-    { id: 's7', text: 'Journal about your experience', completed: false },
-    { id: 's8', text: 'Complete 14 consecutive days', completed: false }
-  ],
-  'm3': [
-    { id: 's9', text: 'Practice mindfulness outside of formal sessions', completed: false },
-    { id: 's10', text: 'Try different meditation positions', completed: false },
-    { id: 's11', text: 'Share your progress with a friend', completed: false },
-    { id: 's12', text: 'Complete all 30 days', completed: false }
-  ]
+  // ... keep existing mockSteps object
 };
 
 const getChallengeIcon = (category: ChallengeCategory) => {
@@ -284,11 +66,30 @@ const ChallengeDetail: React.FC = () => {
   const [isJoining, setIsJoining] = useState(false);
   const [openMilestones, setOpenMilestones] = useState<Record<string, boolean>>({});
   const [steps, setSteps] = useState(mockSteps);
+  const [activeChallenge, setActiveChallenge] = useState<Challenge | null>(null);
+  const [todayChecked, setTodayChecked] = useState(false);
+  const [checkingIn, setCheckingIn] = useState(false);
   
-  // Find the selected challenge
   const challenge = mockChallenges.find(c => c.id === id);
   
-  if (!challenge) {
+  useEffect(() => {
+    if (challenge) {
+      const today = format(new Date(), 'yyyy-MM-dd');
+      let updatedChallenge = { ...challenge };
+      
+      if (!updatedChallenge.dailyCheckIns) {
+        updatedChallenge.dailyCheckIns = {};
+      }
+      
+      setActiveChallenge(updatedChallenge);
+      
+      if (updatedChallenge.dailyCheckIns[today]?.completed) {
+        setTodayChecked(true);
+      }
+    }
+  }, [challenge]);
+  
+  if (!challenge || !activeChallenge) {
     return (
       <Layout>
         <div className="text-center py-10">
@@ -307,12 +108,26 @@ const ChallengeDetail: React.FC = () => {
 
   const handleStartChallenge = () => {
     setIsJoining(true);
-    // In a real app, you would update the challenge status in the database
+    
+    const today = new Date();
+    const endDate = addDays(today, challenge.duration);
+    
+    const updatedChallenge = {
+      ...activeChallenge,
+      status: 'in_progress' as ChallengeStatus,
+      startDate: today.toISOString(),
+      endDate: endDate.toISOString()
+    };
+    
     setTimeout(() => {
+      setActiveChallenge(updatedChallenge);
       setIsJoining(false);
-      // For now, just navigate back to challenges
-      navigate('/challenges');
-    }, 1500);
+      
+      toast({
+        title: "Challenge Started!",
+        description: `You've joined the ${challenge.title} challenge.`,
+      });
+    }, 1000);
   };
 
   const toggleMilestone = (milestoneId: string) => {
@@ -340,6 +155,150 @@ const ChallengeDetail: React.FC = () => {
     });
   };
 
+  const handleDailyCheckIn = () => {
+    if (activeChallenge.status !== 'in_progress') {
+      toast({
+        title: "Start the challenge first",
+        description: "You need to start the challenge before checking in.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setCheckingIn(true);
+    const today = format(new Date(), 'yyyy-MM-dd');
+    const isAlreadyChecked = activeChallenge.dailyCheckIns?.[today]?.completed || false;
+    
+    const updatedCheckIns = {
+      ...activeChallenge.dailyCheckIns,
+      [today]: {
+        date: today,
+        completed: !isAlreadyChecked,
+        notes: ""
+      }
+    };
+    
+    const totalDays = activeChallenge.duration;
+    const completedDays = Object.values(updatedCheckIns).filter(day => day.completed).length;
+    const newProgress = Math.round((completedDays / totalDays) * 100);
+    
+    const updatedMilestones = activeChallenge.milestones.map(milestone => {
+      let current = milestone.current;
+      
+      if (!isAlreadyChecked && milestone.current < milestone.target) {
+        current += 1;
+      } else if (isAlreadyChecked && milestone.current > 0) {
+        current -= 1;
+      }
+      
+      return {
+        ...milestone,
+        current,
+        completed: current >= milestone.target
+      };
+    });
+    
+    const updatedChallenge = {
+      ...activeChallenge,
+      dailyCheckIns: updatedCheckIns,
+      progress: newProgress,
+      milestones: updatedMilestones,
+      status: newProgress >= 100 ? 'completed' : 'in_progress'
+    };
+    
+    setTimeout(() => {
+      setActiveChallenge(updatedChallenge);
+      setTodayChecked(!isAlreadyChecked);
+      setCheckingIn(false);
+      
+      toast({
+        title: isAlreadyChecked ? "Check-in removed" : "Activity completed!",
+        description: isAlreadyChecked 
+          ? "Your daily check-in has been removed." 
+          : "Great job completing today's activity!",
+      });
+    }, 600);
+  };
+
+  const renderCheckInHistory = () => {
+    if (!activeChallenge.dailyCheckIns || Object.keys(activeChallenge.dailyCheckIns).length === 0) {
+      return (
+        <p className="text-center text-muted-foreground py-3">
+          No activity recorded yet.
+        </p>
+      );
+    }
+    
+    const checkIns = Object.entries(activeChallenge.dailyCheckIns)
+      .sort((a, b) => new Date(b[0]).getTime() - new Date(a[0]).getTime())
+      .slice(0, 7);
+    
+    return (
+      <div className="space-y-2">
+        {checkIns.map(([date, checkIn]) => (
+          <div key={date} className="flex items-center justify-between border-b pb-2">
+            <div className="flex items-center">
+              {checkIn.completed ? (
+                <CheckCircle2 className="h-5 w-5 text-green-500 mr-2" />
+              ) : (
+                <div className="h-5 w-5 border rounded-full mr-2" />
+              )}
+              <span>{format(parseISO(date), 'MMM dd, yyyy')}</span>
+            </div>
+            <span className={checkIn.completed ? "text-green-600 font-medium" : "text-muted-foreground"}>
+              {checkIn.completed ? "Completed" : "Missed"}
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  const getStatusInfo = () => {
+    if (!activeChallenge.startDate) {
+      return {
+        label: "Not started",
+        color: "text-muted-foreground"
+      };
+    }
+    
+    const startDate = parseISO(activeChallenge.startDate);
+    const endDate = activeChallenge.endDate ? parseISO(activeChallenge.endDate) : addDays(startDate, activeChallenge.duration);
+    const today = new Date();
+    
+    if (isBefore(endDate, today) && activeChallenge.progress < 100) {
+      return {
+        label: "Expired",
+        color: "text-destructive"
+      };
+    }
+    
+    switch (activeChallenge.status) {
+      case 'completed':
+        return {
+          label: "Completed",
+          color: "text-green-600"
+        };
+      case 'in_progress':
+        return {
+          label: "In Progress",
+          color: "text-blue-600"
+        };
+      case 'failed':
+        return {
+          label: "Failed",
+          color: "text-destructive"
+        };
+      default:
+        return {
+          label: "Not Started",
+          color: "text-muted-foreground"
+        };
+    }
+  };
+
+  const statusInfo = getStatusInfo();
+
   return (
     <Layout>
       <Button 
@@ -352,27 +311,75 @@ const ChallengeDetail: React.FC = () => {
       
       <div className="mb-6">
         <div className="flex items-center gap-3 mb-2">
-          {getChallengeIcon(challenge.category)}
-          <h1 className="text-3xl font-bold">{challenge.title}</h1>
+          {getChallengeIcon(activeChallenge.category)}
+          <h1 className="text-3xl font-bold">{activeChallenge.title}</h1>
         </div>
         
         <div className="flex flex-wrap gap-3 items-center mb-4">
-          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getDifficultyColor(challenge.difficulty)}`}>
-            {challenge.difficulty}
+          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getDifficultyColor(activeChallenge.difficulty)}`}>
+            {activeChallenge.difficulty}
           </span>
           <span className="inline-flex items-center text-sm text-muted-foreground">
-            <Calendar className="mr-1 h-4 w-4" /> {challenge.duration} days
+            <Calendar className="mr-1 h-4 w-4" /> {activeChallenge.duration} days
           </span>
           <span className="inline-flex items-center text-sm text-muted-foreground">
-            <Users className="mr-1 h-4 w-4" /> {challenge.participants} participants
+            <Users className="mr-1 h-4 w-4" /> {activeChallenge.participants} participants
+          </span>
+          <span className={`inline-flex items-center text-sm ${statusInfo.color}`}>
+            <CheckCircle2 className="mr-1 h-4 w-4" /> {statusInfo.label}
           </span>
         </div>
         
-        <p className="text-muted-foreground">{challenge.description}</p>
+        <p className="text-muted-foreground">{activeChallenge.description}</p>
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
+          {activeChallenge.status === 'in_progress' && (
+            <Card className="border-primary/20">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center text-lg">
+                  <CheckCircle2 className="mr-2 h-5 w-5 text-primary" />
+                  Daily Check-in
+                </CardTitle>
+                <CardDescription>
+                  Mark your activity as complete for today
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pb-2">
+                <div className="flex items-center justify-between border p-4 rounded-lg bg-muted/30">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-primary/10 p-2 rounded-full">
+                      {getChallengeIcon(activeChallenge.category)}
+                    </div>
+                    <div>
+                      <h3 className="font-medium">Today's Activity</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {format(new Date(), 'MMMM d, yyyy')}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className={todayChecked ? "text-green-600 font-medium" : "text-muted-foreground"}>
+                      {todayChecked ? "Completed" : "Not completed"}
+                    </span>
+                    <Switch
+                      checked={todayChecked}
+                      onCheckedChange={handleDailyCheckIn}
+                      disabled={checkingIn}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter className="pt-2 border-t">
+                <div className="w-full">
+                  <h4 className="text-sm font-medium mb-2">Recent Activity</h4>
+                  {renderCheckInHistory()}
+                </div>
+              </CardFooter>
+            </Card>
+          )}
+
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
@@ -385,7 +392,7 @@ const ChallengeDetail: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {challenge.milestones.map((milestone) => (
+                {activeChallenge.milestones.map((milestone) => (
                   <Collapsible
                     key={milestone.id}
                     open={openMilestones[milestone.id]}
@@ -502,13 +509,13 @@ const ChallengeDetail: React.FC = () => {
                 <div className="inline-flex items-center justify-center p-4 bg-primary/10 rounded-full mb-2">
                   <Clock className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="text-2xl font-bold">{challenge.progress}%</h3>
+                <h3 className="text-2xl font-bold">{activeChallenge.progress}%</h3>
                 <p className="text-sm text-muted-foreground">Complete</p>
               </div>
               
-              <Progress value={challenge.progress} className="h-2 mb-4" />
+              <Progress value={activeChallenge.progress} className="h-2 mb-4" />
               
-              {challenge.status === 'not_started' && (
+              {activeChallenge.status === 'not_started' && (
                 <Button 
                   className="w-full" 
                   onClick={handleStartChallenge} 
@@ -518,11 +525,22 @@ const ChallengeDetail: React.FC = () => {
                 </Button>
               )}
               
-              {challenge.status === 'in_progress' && (
-                <Button className="w-full">Log Progress</Button>
+              {activeChallenge.status === 'in_progress' && (
+                <Button 
+                  className="w-full"
+                  onClick={handleDailyCheckIn}
+                  disabled={checkingIn}
+                >
+                  {checkingIn 
+                    ? 'Updating...' 
+                    : todayChecked 
+                      ? 'Mark Today as Incomplete' 
+                      : 'Complete Today\'s Activity'
+                  }
+                </Button>
               )}
               
-              {challenge.status === 'completed' && (
+              {activeChallenge.status === 'completed' && (
                 <div className="text-center p-4 bg-green-100 dark:bg-green-900 rounded-lg">
                   <Trophy className="h-8 w-8 text-green-600 dark:text-green-400 mx-auto mb-2" />
                   <p className="font-medium text-green-800 dark:text-green-300">Challenge Completed!</p>
@@ -540,7 +558,7 @@ const ChallengeDetail: React.FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {challenge.rewards.map((reward, index) => (
+                {activeChallenge.rewards.map((reward, index) => (
                   <div key={index} className="flex items-center p-3 border rounded-lg">
                     {reward.type === 'badge' && <Trophy className="h-8 w-8 text-yellow-500 mr-3" />}
                     {reward.type === 'points' && <Star className="h-8 w-8 text-purple-500 mr-3" />}

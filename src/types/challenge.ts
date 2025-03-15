@@ -18,6 +18,12 @@ export type ChallengeMilestone = {
   completed: boolean;
 };
 
+export type DailyCheckIn = {
+  date: string; // ISO date string
+  completed: boolean;
+  notes?: string;
+};
+
 export interface Challenge {
   id: string;
   title: string;
@@ -33,4 +39,5 @@ export interface Challenge {
   rewards: ChallengeReward[];
   participants?: number;
   icon?: string;
+  dailyCheckIns?: Record<string, DailyCheckIn>; // Track daily check-ins by date
 }
